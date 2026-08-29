@@ -6,7 +6,7 @@
 
 ## Skills
 
-### [深度拆书](深度拆书/SKILL.md)
+### [deep-book-deconstruction](deep-book-deconstruction/SKILL.md)
 
 把一本完整书籍转化为结构化、可阅读的中文拆书稿。
 
@@ -50,7 +50,7 @@
 │   ├── references/
 │   │   └── sources-and-metrics.md
 │   └── SKILL.md
-├── 深度拆书/
+├── deep-book-deconstruction/
 │   └── SKILL.md
 ├── LICENSE
 └── README.md
