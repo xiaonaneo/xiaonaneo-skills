@@ -21,7 +21,7 @@
 
 适合在需要快速理解一本书、整理阅读笔记，或把书中的论证转化为可复习材料时使用。触发方式包括 `深度拆书`、`gg`、`拆书`，或直接提供一本书籍 PDF。
 
-### [QQQ 行情分析](qqq-market-analysis/SKILL.md)
+### [qqq-market-analysis](qqq-market-analysis/SKILL.md)
 
 按照长期趋势、估值和金融压力分析 QQQ/TQQQ，并将证据映射为明确的交易信号。
 

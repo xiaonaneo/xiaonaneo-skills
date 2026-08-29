@@ -1,4 +1,4 @@
 interface:
-  display_name: "QQQ 行情分析"
+  display_name: "qqq-market-analysis"
   short_description: "按趋势、估值与金融压力分析 QQQ/TQQQ"
   default_prompt: "使用 $qqq-market-analysis 分析当前 QQQ/TQQQ 行情，并给出明确的买入、持有或卖出信号。"
