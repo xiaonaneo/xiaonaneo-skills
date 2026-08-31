@@ -51,6 +51,21 @@
 
 适合分析当前 BTC 行情、评估周期顶底、判断风险收益，或辨别一轮上涨由现货还是杠杆驱动。实时分析只使用英文或国际来源，并标注数据时间、单位、口径和来源。
 
+### [ai-native-software-engineering](ai-native-software-engineering/SKILL.md)
+
+把 AI 编程纳入可审查、可验证、可回滚的软件工程闭环。
+
+它会：
+
+- 按变化原因和业务领域划分模块，控制上下文半径与修改范围；
+- 明确验收标准、数据 ownership、不变量以及 API、事件和 schema 契约；
+- 优先选择最简单的正确实现，控制抽象、依赖、共享状态和长期复杂度；
+- 覆盖边界、失败路径和回归测试，并自动执行适用的格式化、静态检查、构建和安全检查；
+- 对生产数据、权限、secret、破坏性迁移和生产部署等不可逆操作保留人工确认；
+- 删除功能时同步清理代码、配置、依赖、测试、文档、监控和兼容逻辑。
+
+适合在使用 AI 规划、实现、审查或重构软件时使用；纯粹的代码风格改写不适用。
+
 ## 使用方式
 
 选择需要的 skill，阅读对应目录中的 `SKILL.md`，再将该目录放入 Codex 的 skills 目录中使用。不同运行环境的 skills 目录位置可能不同，请以本机 Codex 配置为准。
@@ -72,6 +87,10 @@
 │   │   └── sources-and-metrics.md
 │   └── SKILL.md
 ├── deep-book-deconstruction/
+│   └── SKILL.md
+├── ai-native-software-engineering/
+│   ├── agents/
+│   │   └── openai.yaml
 │   └── SKILL.md
 ├── LICENSE
 └── README.md

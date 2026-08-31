@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI-native 软件工程规范"
+  short_description: "让 AI 编程遵循可验证、可回滚、可审查、可维护的工程闭环"
+  default_prompt: "Use $ai-native-software-engineering to implement this change with explicit constraints, minimal scope, and verified results."
