@@ -36,6 +36,21 @@
 
 适合在分析当前 QQQ/TQQQ 行情、执行个人 TQQQ 策略，或研究历史行情与回测条件时使用。实时分析只使用英文或国际来源，并标注数据时间与口径。
 
+### [btc-market-analysis](btc-market-analysis/SKILL.md)
+
+用宏观流动性、现货资金、价格结构、杠杆、链上估值和周期位置六层框架分析 BTC，判断趋势是否成立、市场是否脆弱，以及当前风险收益是否值得承担。
+
+它会：
+
+- 使用 ICE U.S. Dollar Index（DXY）、美国国债收益率、美联储政策和流动性代理判断宏观顺逆风；
+- 结合美国现货 BTC ETF 流量与现货成交，区分现货推动和杠杆推动；
+- 检查周线结构、关键支撑阻力、Higher High/Higher Low 与长期均线；
+- 联合分析 OI、Funding、期货基差和清算数据，识别仓位拥挤与连锁清算风险；
+- 使用 MVRV、Realized Price、持有人成本基础和减半周期评估长期赔率；
+- 输出趋势、脆弱性、风险收益、驱动力、行动倾向和失效条件，并主动检查隐藏假设与反方证据。
+
+适合分析当前 BTC 行情、评估周期顶底、判断风险收益，或辨别一轮上涨由现货还是杠杆驱动。实时分析只使用英文或国际来源，并标注数据时间、单位、口径和来源。
+
 ## 使用方式
 
 选择需要的 skill，阅读对应目录中的 `SKILL.md`，再将该目录放入 Codex 的 skills 目录中使用。不同运行环境的 skills 目录位置可能不同，请以本机 Codex 配置为准。
@@ -44,6 +59,12 @@
 
 ```text
 .
+├── btc-market-analysis/
+│   ├── agents/
+│   │   └── openai.yaml
+│   ├── references/
+│   │   └── framework.md
+│   └── SKILL.md
 ├── qqq-market-analysis/
 │   ├── agents/
 │   │   └── openai.yaml
