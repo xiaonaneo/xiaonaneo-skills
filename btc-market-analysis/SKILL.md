@@ -34,6 +34,8 @@ End with a compact dashboard containing:
 - Fragility: low, medium, or high.
 - Risk-reward: favorable, neutral, or unfavorable.
 - Driver: spot-led, leverage-led, mixed, or unclear.
+- Weekly MA band: above weekly MA200, between weekly MA200 and weekly MA300, or below weekly MA300; if the averages are inverted, report the actual relation to both instead of forcing a band.
+- Halving timeline: the most recent actual and next projected halving dates, with the calendar dates 500 days before and 500 days after each relevant halving.
 - Action bias: add, hold, wait, reduce, or avoid, expressed conditionally unless the user supplied a portfolio and explicit rules.
 - Invalidation: the price, flow, leverage, or macro evidence that would overturn the view.
 

@@ -59,9 +59,17 @@ Use a stated benchmark and inspect:
 - Current price, weekly close, and recent swing highs/lows.
 - Higher high/higher low versus lower high/lower low.
 - Key support, resistance, reclaim, breakdown, and invalidation zones.
-- Weekly 200- and 300-period moving averages when the benchmark has adequate history.
+- Weekly 200- and 300-period simple moving averages when the benchmark has adequate history. Report the current BTC price and both moving-average values with their as-of times.
 
 Do not confuse daily MA200 with 200-week MA. A wick above resistance is weaker evidence than acceptance above it; define acceptance using closes, retests, or time spent above the level. Price is the final confirmation layer, but rising price alone does not identify the quality of the move.
+
+Calculate weekly MA200 and weekly MA300 from weekly closes on the same benchmark. Use completed weekly bars by default; if the current partial weekly bar is included, disclose that choice. Classify the current price as follows when `weekly MA200 >= weekly MA300`:
+
+- `Price > weekly MA200`: **above weekly MA200**.
+- `weekly MA300 <= Price <= weekly MA200`: **between weekly MA200 and weekly MA300**.
+- `Price < weekly MA300`: **below weekly MA300**.
+
+This classification assumes weekly MA200 is above weekly MA300. If `weekly MA200 < weekly MA300`, state that the averages are inverted and report price as above or below each average; do not force it into one of the three labels. Keep live/intraday price distinct from moving averages based on the latest completed weekly close.
 
 ### Leverage: internal fragility
 
@@ -98,7 +106,14 @@ Use valuation to classify zones, not to time exact reversals. On-chain metrics m
 
 Question: Where might BTC sit in its lifecycle, and how weak is that inference?
 
-Calculate days before or after the most recent halving and, if relevant, days until the projected next halving. Label the next date as an estimate because block production determines it.
+Report a halving timeline in `YYYY-MM-DD` using UTC dates. For a current-market analysis, include at minimum:
+
+| Halving reference | Halving date | 500 days before | 500 days after | Status |
+|---|---|---|---|---|
+| Most recent halving | Actual date | `H - 500 calendar days` | `H + 500 calendar days` | Actual |
+| Next halving | Projected date | `H - 500 calendar days` | `H + 500 calendar days` | Estimate |
+
+Calculate and display the dates rather than leaving formulas in the final answer. Also report days before or after the relevant halving as of the analysis timestamp. Label the next halving and both dates derived from it as estimates because block production determines the event date. For historical analysis, use the halving or halvings that bracket the requested period.
 
 The prior framework observed mature-cycle lows clustering roughly 500-540 days before a subsequent halving, with sample observations around 542, 513, and 515 days. Treat this as a hypothesis with a small sample, selection risk, and regime-change risk—not a trading rule. Test it jointly:
 
@@ -143,13 +158,13 @@ Lead with a one-paragraph state assessment and its as-of time. Then use this ord
 1. Data basis and freshness.
 2. Macro.
 3. Spot/ETF.
-4. Price structure and key levels.
+4. Price structure and key levels, including current price, weekly MA200, weekly MA300, and the weekly MA band.
 5. Leverage.
 6. Valuation.
-7. Cycle.
+7. Cycle, including the halving date table with 500-days-before and 500-days-after dates.
 8. Hidden assumptions and contrary evidence.
 9. Base, upside, and downside paths, each with observable triggers.
-10. Final dashboard: Trend, Fragility, Risk-reward, Driver, Action bias, and Invalidation.
+10. Final dashboard: Trend, Fragility, Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation.
 
 Use concise tables when they improve comparison. Cite all current facts and numerical claims. Distinguish:
 
