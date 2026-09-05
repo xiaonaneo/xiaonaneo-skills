@@ -6,21 +6,6 @@
 
 ## Skills
 
-### [deep-book-deconstruction](deep-book-deconstruction/SKILL.md)
-
-把一本完整书籍转化为结构化、可阅读的中文拆书稿。
-
-它会：
-
-- 以用户提供的书籍 PDF 作为主要证据来源；
-- 按阅读顺序逐章梳理观点、证据、案例和推理链；
-- 用日常语言解释抽象概念，并区分书中观点与解释性类比；
-- 输出 `核心观点`、`逐章解读`、`适用范围` 三个部分；
-- 提取 10 条有来源、简短的精彩原句；
-- 将生成的 Markdown 文件保存并复制到 Obsidian 的 `拆书` 文件夹。
-
-适合在需要快速理解一本书、整理阅读笔记，或把书中的论证转化为可复习材料时使用。触发方式包括 `深度拆书`、`gg`、`拆书`，或直接提供一本书籍 PDF。
-
 ### [qqq-market-analysis](qqq-market-analysis/SKILL.md)
 
 按照长期趋势、估值和金融压力分析 QQQ/TQQQ，并将证据映射为明确的交易信号。
@@ -85,8 +70,6 @@
 │   │   └── openai.yaml
 │   ├── references/
 │   │   └── sources-and-metrics.md
-│   └── SKILL.md
-├── deep-book-deconstruction/
 │   └── SKILL.md
 ├── ai-native-software-engineering/
 │   ├── agents/
