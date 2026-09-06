@@ -1,6 +1,6 @@
 ---
 name: qqq-market-analysis
-description: Analyze current QQQ/TQQQ conditions and produce explicit buy, hold, wait, add, or staged-sell signals using long-term trend, Nasdaq-100 forward valuation, and financial-stress evidence. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ trading strategy; do not use for generic stock commentary without this framework.
+description: Analyze current QQQ/TQQQ conditions and produce explicit buy, hold, wait, add, or staged-sell signals using long-term trend, Nasdaq-100 forward valuation and historical percentiles, corporate earnings, and financial-stress evidence. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ trading strategy; do not use for generic stock commentary without this framework.
 ---
 
 # 投资分析QQQ
@@ -26,13 +26,22 @@ description: Analyze current QQQ/TQQQ conditions and produce explicit buy, hold,
 - 20 ≤ Forward P/E ≤ 25：允许买入，但赔率一般；
 - Forward P/E < 20：进入便宜区，可以明显提高计划投入。
 
+每次必须同时报告估值样本区间、当前 forward P/E 的历史百分位，以及同口径历史 25%、50%、75%、90%、95% 分位对应的 P/E；数据不足时明确覆盖范围，不根据另一种 P/E 口径补算。可获得同口径数据时，再与 2000、2008、2021、2022 等阶段比较。
+
 历史估值百分位用于识别类似 2000 年的极端泡沫起点，不能替代绝对估值阈值。Trailing、forward 和 harmonic P/E 不得混用；若 forward P/E 不可得，应标注缺口，不得用其他口径冒充。
 
 ### 3. 金融压力决定投入速度
 
-至少观察信用利差、资金市场/银行间流动性、VIX、盈利预期修正，以及 NFCI 等综合金融条件。每项都报告：
+至少观察信用利差、资金市场/银行间流动性、VIX、企业盈利水平、盈利预期修正，以及 NFCI 等综合金融条件。每项都报告：
 
 水平 + 方向 + 变化速度
+
+企业盈利需要拆成两层：
+
+- 实际盈利水平：优先使用 Nasdaq-100 聚合 EPS、同比增速；可得时补充利润率和盈利增长广度。
+- 未来盈利变化：使用 forward EPS 增速和分析师上调/下调方向。
+
+企业盈利水平本身不是金融系统压力指标。当前盈利仍高但盈利预期连续下修，表示潜在压力正在增加，不能归类为“盈利健康”；实际盈利稳定且预期停止下修或转为上修，才支持提高买入速度。S&P 500 盈利只能作为大盘背景，不能替代 Nasdaq-100 盈利证据。
 
 其中 ΔStress > 0 表示压力继续恶化，ΔStress < 0 表示压力边际改善；使用方向相反的指标时必须先统一符号。
 
@@ -93,10 +102,10 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 ## 执行要求
 
 1. 当前数据必须重新查询，写出截至时间、时区和收盘/盘中口径。只使用英文或国际来源；优先官方或原始数据源。执行实时分析前读取 [references/sources-and-metrics.md](references/sources-and-metrics.md)。
-2. 至少覆盖 QQQ/周 MA200、TQQQ/周 MA300、Nasdaq-100 forward P/E 及历史百分位、金融压力的水平/方向/速度、T₀ 成熟度，以及 QQQ 长期乖离及其历史分位。不同日期或不同口径不得静默拼接。
+2. 至少覆盖 QQQ/周 MA200、TQQQ/周 MA300、Nasdaq-100 forward P/E 及历史百分位基准、Nasdaq-100 企业盈利水平与盈利预期修正、金融压力的水平/方向/速度、T₀ 成熟度，以及 QQQ 长期乖离及其历史分位。不同日期或不同口径不得静默拼接。
 3. 先给一句明确行动状态，再列满足项、缺失项和冲突项。区分“新资金”与“已有低位仓位”，不得把估值贵写成自动做空信号。
 4. 若分析 TQQQ，必须说明它是每日复位的 3× 产品，长期结果不等于 QQQ 累计涨跌幅乘以 3；量化时按实际路径或历史序列压力测试。
-5. 单列隐藏假设：已有仓位和成本、可投入现金、绝对金额上限、周线口径、forward P/E 可比性、金融压力滞后，以及第一次触及均线后继续恶化的可能性。
+5. 单列隐藏假设：已有仓位和成本、可投入现金、绝对金额上限、周线口径、forward P/E 历史样本可比性、企业盈利来源是否对应 Nasdaq-100、金融压力滞后，以及第一次触及均线后继续恶化的可能性。
 
 ## 固定输出结构
 
@@ -111,6 +120,7 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 | QQQ / 周 MA200 | ... | ... | ... |
 | TQQQ / 周 MA300 | ... | ... | ... |
 | Forward P/E / 历史百分位 | ... | ... | ... |
+| 企业盈利水平 / 预期修正 | ... | ... | ... |
 | 金融压力：水平/方向/速度 | ... | ... | ... |
 | T₀ 与已过天数 | ... | ... | ... |
 | MA200 乖离 / 历史分位 | ... | ... | ... |
@@ -129,6 +139,16 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 
 对历史研究或回测，使用 adjusted close，明确周线确认日、下一交易日执行、交易成本、股息、滑点和 TQQQ 上市前的合成数据边界。约 500 天后继续检查卖出交集；700 天或 1000 天若未满足估值与乖离条件，只能报告持有期收益或市值，不得伪装成已实现卖出。
 
-整套策略可压缩为：
+最终可以压缩成：
 
-**买入避免毁灭，持有避免截断赢家，卖出等待赔率恶化。**
+\[
+\boxed{\text{买：MA300定位置，PE定赔率，金融压力定速度}}
+\]
+
+\[
+\boxed{\text{卖：时间定成熟度，PE+MA200乖离定时机}}
+\]
+
+\[
+\boxed{\text{仓位：限制本金下注，让利润奔跑}}
+\]

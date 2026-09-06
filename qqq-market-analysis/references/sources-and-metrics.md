@@ -13,7 +13,7 @@
 | 利率与宏观时间序列 | [Federal Reserve FRED](https://fred.stlouisfed.org/) | 记录 series ID、观察日和发布日期；10Y 等利率不能与不同日期的收盘价静默合并 |
 | 金融压力 | [Chicago Fed NFCI](https://www.chicagofed.org/research/data/nfci/current-data)、[St. Louis Fed STLFSI](https://fred.stlouisfed.org/series/STLFSI4) | 记录指数定义、频率、水平、方向和变化速度；注意周频滞后 |
 | 信用利差 | [FRED ICE BofA indices](https://fred.stlouisfed.org/categories/32345) | 优先使用同一数据体系的 HY OAS 与 IG OAS；注明 series ID 和观察日 |
-| 盈利预期与指数盈利 | [FactSet Earnings Insight](https://insight.factset.com/) 或 Nasdaq 的英文盈利资料 | 区分 reported earnings、forward EPS、分析师修正和实际盈利；写明覆盖范围与截止日 |
+| 企业盈利水平与盈利预期 | [FactSet Earnings Insight](https://insight.factset.com/) 或 Nasdaq 的英文盈利资料 | 优先使用 Nasdaq-100 聚合 EPS、同比增长、forward EPS 与分析师修正；S&P 500 只能作为背景，不能替代指数证据 |
 
 这些是路由建议，不是保证每个页面都提供当天数据。当前值、历史百分位和均线必须在实际查询后再写入结论。
 
@@ -25,6 +25,9 @@
 - 估值：买卖阈值优先使用 Nasdaq-100 forward P/E，每次写出数值、日期、来源和同口径历史百分位。`>25` 原则上不买，`20–25` 允许买但赔率一般，`<20` 便宜，接近或超过 `30` 进入卖出估值条件。Trailing 或 harmonic P/E 只能补充说明，不能代替 forward P/E 触发阈值。
 - 压力速度：至少比较最近一次与此前同频观察值。统一为 `ΔStress > 0` 表示恶化、`ΔStress < 0` 表示改善；若原始指标方向相反，先转换符号，并给出时间间隔和变化幅度。
 - 卖出成熟度：以 TQQQ 熊市后重新站上周 MA300 的确认日期作为 `T₀`。前约 500 天原则上持有；约 500 天后永久评估 forward P/E 与乖离交集，500–700 天不是强制清仓窗口。
+
+- 历史估值百分位对比：除当前 percentile 外，报告样本区间和历史 25%、50%、75%、90%、95% 分位对应的 Nasdaq-100 forward P/E。样本不足或序列定义变化时标注覆盖边界，不跨 P/E 口径补算。
+- 企业盈利：分别报告 Nasdaq-100 实际盈利水平和未来盈利变化。实际层优先使用聚合 EPS、同比增速，可得时补充利润率和盈利广度；预期层使用 forward EPS 增速和上调/下调方向。记录覆盖范围、观察日和发布日期，不用 S&P 500 盈利冒充 Nasdaq-100。
 
 ## 来源纪律
 
