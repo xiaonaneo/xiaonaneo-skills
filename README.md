@@ -6,7 +6,7 @@
 
 ## Skills
 
-### [qqq-market-analysis](qqq-market-analysis/SKILL.md)
+### [投资分析QQQ](qqq-market-analysis/SKILL.md)
 
 按照长期趋势、估值和金融压力分析 QQQ/TQQQ，并将证据映射为明确的交易信号。
 
