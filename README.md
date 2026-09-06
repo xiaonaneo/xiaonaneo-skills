@@ -21,7 +21,7 @@
 
 适合在分析当前 QQQ/TQQQ 行情、执行个人 TQQQ 策略，或研究历史行情与回测条件时使用。实时分析只使用英文或国际来源，并标注数据时间与口径。
 
-### [btc-market-analysis](btc-market-analysis/SKILL.md)
+### [投资分析BTC](btc-market-analysis/SKILL.md)
 
 用宏观流动性、现货资金、价格结构、杠杆、链上估值和周期位置六层框架分析 BTC，判断趋势是否成立、市场是否脆弱，以及当前风险收益是否值得承担。
 

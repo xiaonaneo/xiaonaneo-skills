@@ -1,4 +1,4 @@
 interface:
-  display_name: "BTC Market Analysis"
+  display_name: "投资分析BTC"
   short_description: "用六层框架分析 BTC 趋势、市场脆弱性与风险收益比"
   default_prompt: "Use $btc-market-analysis to analyze the current BTC market and give an evidence-based state assessment."

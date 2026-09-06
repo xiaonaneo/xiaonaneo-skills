@@ -3,7 +3,7 @@ name: btc-market-analysis
 description: Analyze current Bitcoin market conditions with a six-layer framework covering macro liquidity, spot and ETF flows, price structure, leverage, on-chain valuation, and cycle position. Use when the user asks for BTC market analysis, trend assessment, bottom or top evaluation, current risk-reward, or whether a BTC move is spot-driven or leverage-driven; do not use for unrelated crypto assets or purely technical execution questions.
 ---
 
-# BTC Market Analysis
+# 投资分析BTC
 
 Produce an evidence-based BTC state assessment, not a point-price prediction. The analysis must answer:
 
