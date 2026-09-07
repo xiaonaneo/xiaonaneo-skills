@@ -46,7 +46,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 权重只用于比较同一行动层级内的置信度和速度，不替代因子是否满足的判断，也不覆盖“单因子观察、两因子行动、三因子加速”。不得用加权总分绕过 PE>25 的买入否决或把单一高分因子变成独立交易信号。
 
-完整的 0–100 因子校准、因子状态认定、买卖行动阈值、缺失数据处理和回测防前视规则见 [references/scoring-system.md](references/scoring-system.md)。评分系统使用三层顺序：硬门槛先否决，因子数量决定行动上限，加权分只决定同一行动层级内的速度和力度。
+完整的 0–100 因子校准、因子状态认定、买卖行动阈值、按分数映射的累计仓位表、缺失数据处理和回测防前视规则见 [references/scoring-system.md](references/scoring-system.md)。评分系统使用三层顺序：硬门槛先否决，因子数量决定行动上限，加权分只决定同一行动层级内的速度和力度。
 
 ## 买入：均线定位置，估值定赔率，金融压力定速度
 
