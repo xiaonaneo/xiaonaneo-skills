@@ -1,11 +1,30 @@
 ---
 name: qqq-market-analysis
-description: Analyze current QQQ/TQQQ conditions and produce explicit buy, hold, wait, add, or staged-sell signals using long-term trend, Nasdaq-100 forward valuation and historical percentiles, corporate earnings, and financial-stress evidence. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ trading strategy; do not use for generic stock commentary without this framework.
+description: Analyze current QQQ/TQQQ conditions with a three-factor cross-validation framework spanning long-term trend, Nasdaq-100 forward valuation and historical percentiles, corporate earnings, and financial stress, then produce explicit buy, hold, wait, add, or staged-sell signals. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ trading strategy; do not use for generic stock commentary without this framework.
 ---
 
 # 投资分析QQQ
 
 把用户的 TQQQ 策略落实为可复核的决策支持。每次分析都重新获取当前数据，不把市场叙事、单一指标或一次历史结论直接当成交易信号。
+
+## 三因子交叉验证总纲
+
+整套策略由三个维度组成：
+
+均线 + 估值 + 金融压力
+
+| 维度 | 回答的问题 | 单独使用的典型误判 |
+|---|---|---|
+| 均线 | 价格处于长期趋势的什么位置 | 价格跌到 MA200 不代表估值便宜，2000 年是典型 |
+| 估值 | 当前价格对应的赔率是否划算 | P/E 很低不代表马上见底，2008 年盈利预期下修会让“便宜”失真 |
+| 金融压力 | 风险是在恶化还是改善，应该多快行动 | 压力很高不一定该卖，熊市后期压力见顶回落可能是加速买入阶段 |
+
+三个维度彼此验证，而不是三个独立开关，也不做简单平均打分：
+
+- 买入一致性：位置低 + 估值合理或便宜 + 压力不再恶化或开始改善。三者越一致，买入置信度越高，投入速度越快。
+- 卖出一致性：位置过热 + 估值偏贵 + 压力开始恶化。三者越一致，卖出证据越强，兑现力度越大。
+- 单一因子只能形成候选、预警或强弱分层，不能隐去另外两个维度。出现冲突时，降低行动强度并明确列出冲突项。
+- 熊市建仓阶段与盈利持仓阶段必须分开：相同的压力恶化在前者意味着慢买，在后者才可能意味着提前减仓。
 
 ## 买入：均线定位置，估值定赔率，金融压力定速度
 
@@ -133,7 +152,7 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 
 1. 当前数据必须重新查询，写出截至时间、时区和收盘/盘中口径。只使用英文或国际来源；优先官方或原始数据源。执行实时分析前读取 [references/sources-and-metrics.md](references/sources-and-metrics.md)。
 2. 至少覆盖 QQQ/周 MA200、TQQQ/周 MA300、Nasdaq-100 forward P/E 及历史百分位基准、Nasdaq-100 企业盈利水平与盈利预期修正、金融压力的水平/方向/速度、当前处于建仓还是盈利持仓阶段、T₀ 成熟度，以及 QQQ 长期乖离及其历史分位。不同日期或不同口径不得静默拼接。
-3. 先给一句明确行动状态，再列满足项、缺失项和冲突项。区分“新资金”与“已有低位仓位”，不得把估值贵写成自动做空信号。
+3. 先给一句明确行动状态，再逐项列出均线、估值和金融压力是相互确认还是冲突。区分“新资金”与“已有低位仓位”，不得把估值贵写成自动做空信号。
 4. 若分析 TQQQ，必须说明它是每日复位的 3× 产品，长期结果不等于 QQQ 累计涨跌幅乘以 3；量化时按实际路径或历史序列压力测试。
 5. 单列隐藏假设：已有仓位和成本、可投入现金、绝对金额上限、周线口径、forward P/E 历史样本可比性、企业盈利来源是否对应 Nasdaq-100、金融压力滞后，以及第一次触及均线后继续恶化的可能性。
 
@@ -152,6 +171,7 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 | Forward P/E / 历史百分位 | ... | ... | ... |
 | 企业盈利水平 / 预期修正 | ... | ... | ... |
 | 金融压力：水平/方向/速度 | ... | ... | ... |
+| 三因子交叉验证 | 一致/部分一致/冲突 | ... | ... |
 | T₀ 与已过天数 | ... | ... | ... |
 | MA200 乖离 / 历史分位 | ... | ... | ... |
 
@@ -174,3 +194,7 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 1. **买入：QQQ 周 MA200 定位置，估值定赔率，金融压力的水平、方向和速度决定投入节奏。**
 2. **卖出：时间定成熟度，MA200 历史乖离定主要兑现力度，估值与金融压力负责确认和提前预警。**
 3. **仓位：最多用总资产 30% 和绝对金额上限内的本金买入 TQQQ，不因上涨后的仓位膨胀而再平衡，让利润奔跑，只按卖出系统退出。**
+
+最核心的思想是：
+
+**均线看位置，估值看赔率，金融压力看方向；三者交叉验证决定买卖和节奏。**
