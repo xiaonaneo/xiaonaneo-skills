@@ -31,18 +31,15 @@ Before analysis, read [references/framework.md](references/framework.md). It def
 - If reliable current data is unavailable or methodologies conflict, say so. Do not fill gaps with unsourced numbers or silently combine mismatched timestamps.
 - Keep language objective and direct. Give conditional conclusions and invalidation levels rather than certainty.
 
-## Required conclusion
+## Required output format
 
-End with a compact dashboard containing:
+Every execution must use exactly these six top-level sections, in this order, with no additional top-level sections:
 
-- Trend: bullish, neutral, or bearish, with horizon.
-- Fragility: low, medium, or high.
-- Financial stress: low, medium, high, or unknown, with easing/stable/worsening direction and implications for the action bias.
-- Risk-reward: favorable, neutral, or unfavorable.
-- Driver: spot-led, leverage-led, mixed, or unclear.
-- Weekly MA band: above weekly MA200, between weekly MA200 and weekly MA300, or below weekly MA300; if the averages are inverted, report the actual relation to both instead of forcing a band.
-- Halving timeline: the most recent actual and next projected halving dates, with the calendar dates 500 days before and 500 days after each relevant halving.
-- Action bias: add, hold, wait, reduce, or avoid, expressed conditionally unless the user supplied a portfolio and explicit rules.
-- Invalidation: the price, flow, leverage, or macro evidence that would overturn the view.
+1. `## 核心结论`
+2. `## 宏观数据`
+3. `## 周期位置`
+4. `## 价格结构`
+5. `## 杠杆水平`
+6. `## 链上估值`
 
-Include a base, upside, and downside path with triggers. Avoid unsupported price targets.
+Put the as-of timestamp and data basis in `核心结论` or directly in the relevant section. Put the compact dashboard, including Trend, Fragility, Financial stress, Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation, inside `核心结论`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create separate top-level sections for these items. Avoid unsupported price targets.

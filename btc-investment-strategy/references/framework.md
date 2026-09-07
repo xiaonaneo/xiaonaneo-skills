@@ -183,18 +183,24 @@ State the strongest disconfirming evidence and what observation would force a vi
 
 ## 5. Output contract
 
-Lead with a one-paragraph state assessment and its as-of time. Then use this order:
+Every execution must use exactly these six top-level sections and this order:
 
-1. Data basis and freshness.
-2. Macro, including a Financial stress subsection covering broad conditions, credit spreads, volatility, and dollar funding.
-3. Spot/ETF.
-4. Price structure and key levels, including current price, weekly MA200, weekly MA300, and the weekly MA band.
-5. Leverage.
-6. Valuation.
-7. Cycle, including the halving date table with 500-days-before and 500-days-after dates.
-8. Hidden assumptions and contrary evidence.
-9. Base, upside, and downside paths, each with observable triggers.
-10. Final dashboard: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation.
+1. `## 核心结论`
+2. `## 宏观数据`
+3. `## 周期位置`
+4. `## 价格结构`
+5. `## 杠杆水平`
+6. `## 链上估值`
+
+Use `核心结论` for the one-paragraph state assessment and as-of time. Put the compact dashboard there: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create additional top-level sections for these items.
+
+Map the evidence into the remaining sections:
+
+- `宏观数据`: DXY, yields, Fed stance, liquidity, financial stress, ETF/spot flow, and data freshness relevant to the macro and demand read.
+- `周期位置`: actual and projected halving dates, each relevant `-500 days` and `+500 days` date, days before/after halving, and cycle interpretation.
+- `价格结构`: current price, weekly MA200, weekly MA300, the required weekly MA band, swing structure, and key levels.
+- `杠杆水平`: OI, Funding, futures basis, liquidations, and whether the move is spot-led or leverage-led.
+- `链上估值`: MVRV, realized price, holder cost basis, and valuation interpretation.
 
 Use concise tables when they improve comparison. Cite all current facts and numerical claims. Distinguish:
 
