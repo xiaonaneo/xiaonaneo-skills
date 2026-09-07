@@ -98,7 +98,9 @@ def build_result(
     retrieved_at = (retrieved_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
     observations = parse_observations(payload)
     latest = observations[-1]
-    age_hours = max(0.0, (retrieved_at - latest["_time"]).total_seconds() / 3600)
+    age_hours = (retrieved_at - latest["_time"]).total_seconds() / 3600
+    if age_hours < 0:
+        raise MVRVError("latest MVRV observation is in the future")
     status = "stale" if age_hours > max_staleness_hours else "ok"
     public_observations = [
         {"as_of": item["as_of"], "value": item["value"]} for item in observations

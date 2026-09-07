@@ -36,7 +36,9 @@
 - 检查周线结构、关键支撑阻力、Higher High/Higher Low，并判断价格处于周 MA200 之上、周 MA200 与周 MA300 之间，还是周 MA300 以下；
 - 联合分析 OI、Funding、期货基差和清算数据，识别仓位拥挤与连锁清算风险；
 - 使用 MVRV、Realized Price、持有人成本基础和减半周期评估长期赔率，并输出减半日期及减半前后 500 天日期；
-- 按“核心结论、宏观数据、周期位置、价格结构、杠杆水平、链上估值”六个部分输出趋势、脆弱性、风险收益、驱动力、行动倾向和失效条件，并主动检查隐藏假设与反方证据。
+- 默认使用 Binance `BTCUSDT` 现货与永续合约数据，并按“核心结论、宏观数据、周期位置、价格结构、杠杆水平、链上估值”六个部分输出趋势、脆弱性、风险收益、驱动力、行动倾向和失效条件，同时主动检查隐藏假设与反方证据。
+- 通过数据完整性闸门后，按固定状态机判断 `data_gap`、`add_candidate`、`hold_or_wait`、`reduce` 或 `reduce_or_avoid`；没有风险配置时不生成仓位金额；
+- 使用包含 `available_at` 和下一根 K 线执行时间的输入进行现货回测，并与 Buy-and-hold 基准比较。
 
 适合分析当前 BTC 行情、评估周期顶底、判断风险收益，或辨别一轮上涨由现货还是杠杆驱动。实时分析只使用英文或国际来源，并标注数据时间、单位、口径和来源。
 
@@ -69,10 +71,23 @@
 │   ├── agents/
 │   │   └── openai.yaml
 │   ├── references/
-│   │   └── framework.md
+│   │   ├── backtest.md
+│   │   ├── data-contract.md
+│   │   ├── decision-rules.md
+│   │   ├── framework.md
+│   │   └── risk-and-execution.md
 │   ├── scripts/
+│   │   ├── backtest_strategy.py
+│   │   ├── calculate_position_size.py
+│   │   ├── evaluate_signal.py
 │   │   ├── fetch_mvrv.py
-│   │   └── test_fetch_mvrv.py
+│   │   ├── risk_model.py
+│   │   ├── test_backtest_strategy.py
+│   │   ├── test_evaluate_signal.py
+│   │   ├── test_fetch_mvrv.py
+│   │   ├── test_risk_model.py
+│   │   ├── test_validate_snapshot.py
+│   │   └── validate_snapshot.py
 │   └── SKILL.md
 ├── tqqq-investment-strategy/
 │   ├── agents/

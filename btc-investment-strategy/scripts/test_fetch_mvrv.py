@@ -65,6 +65,17 @@ class FetchMVRVTests(unittest.TestCase):
         )
         self.assertEqual(result["status"], "stale")
 
+    def test_future_observation_is_rejected(self) -> None:
+        with self.assertRaisesRegex(MVRVError, "future"):
+            build_result(
+                {
+                    "data": [
+                        {"asset": "btc", "time": "2026-09-06T00:00:00Z", "CapMVRVCur": "1.4"}
+                    ]
+                },
+                retrieved_at=datetime(2026, 9, 5, tzinfo=timezone.utc),
+            )
+
     def test_current_observation_includes_unit_and_history(self) -> None:
         result = build_result(
             {

@@ -1,6 +1,6 @@
 # BTC Six-Layer Framework
 
-Use this reference for every current BTC market analysis.
+Use this reference for every current BTC market analysis. Use [data-contract.md](data-contract.md) for the canonical source, venue, unit, timestamp, and fallback rules.
 
 ## 1. Establish the evidence window
 
@@ -68,7 +68,7 @@ ETF flows are a proxy, not a complete map of spot demand. Note reporting lags, p
 
 Question: What has price actually confirmed?
 
-Use a stated benchmark and inspect:
+Use the canonical Binance spot `BTCUSDT` benchmark unless the user explicitly overrides it, and inspect:
 
 - Current price, weekly close, and recent swing highs/lows.
 - Higher high/higher low versus lower high/lower low.
@@ -77,7 +77,7 @@ Use a stated benchmark and inspect:
 
 Do not confuse daily MA200 with 200-week MA. A wick above resistance is weaker evidence than acceptance above it; define acceptance using closes, retests, or time spent above the level. Price is the final confirmation layer, but rising price alone does not identify the quality of the move.
 
-Calculate weekly MA200 and weekly MA300 from weekly closes on the same benchmark. Use completed weekly bars by default; if the current partial weekly bar is included, disclose that choice. Classify the current price as follows when `weekly MA200 >= weekly MA300`:
+Calculate weekly MA200 and weekly MA300 as simple moving averages of completed UTC weekly closes from Binance spot `BTCUSDT`. Exclude the partial week by default; if it is included, disclose that choice. Classify the current price as follows when `weekly MA200 >= weekly MA300`:
 
 - `Price > weekly MA200`: **above weekly MA200**.
 - `weekly MA300 <= Price <= weekly MA200`: **between weekly MA200 and weekly MA300**.
@@ -129,7 +129,7 @@ The helper uses the no-key Coin Metrics Community API daily metric `CapMVRVCur`,
 - Request `CapMVRVCur` by itself. Combining it with metrics that are not available to Community credentials can make the whole request return HTTP 403.
 - Accept only a finite, positive, dimensionless ratio with an ISO timestamp. Never interpret a currency-formatted field, chart price, or unrelated page value as MVRV.
 - The helper marks data older than 72 hours as stale and exits nonzero. Report stale or failed retrieval as a data gap unless a fallback meets the same value, unit, and timestamp requirements.
-- Glassnode is a cross-check or fallback only when its page exposes an explicitly labeled MVRV ratio and observation time. `fuckbtc.com` may supplement a gap only when it exposes a numeric value, visible update time, and usable methodology or upstream source; placeholders such as `--` are not data.
+- Glassnode is a cross-check or fallback only when its page exposes an explicitly labeled MVRV ratio and observation time; otherwise report a data gap. Placeholders such as `--` are not data.
 - Do not splice one provider's current value into another provider's historical thresholds without labeling the methodology change.
 
 ### Cycle: time and regime

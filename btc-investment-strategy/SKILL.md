@@ -13,11 +13,15 @@ Produce an evidence-based BTC state assessment, not a point-price prediction. Th
 
 For every current-market request, browse for fresh data. Use English-language or international sources only; do not use Chinese websites. Prefer primary data and cite each time-sensitive claim close to the claim.
 
-Before analysis, read [references/framework.md](references/framework.md). It defines the six layers, data conventions, synthesis rules, and output contract.
+Before analysis, read [references/framework.md](references/framework.md), [references/data-contract.md](references/data-contract.md), [references/decision-rules.md](references/decision-rules.md), [references/risk-and-execution.md](references/risk-and-execution.md), and [references/backtest.md](references/backtest.md). They define the six layers, canonical data sources, data conventions, decision state machine, risk and execution rules, backtest contract, synthesis rules, and output contract.
 
 ## Deterministic data helpers
 
 - Retrieve current MVRV with `python3 scripts/fetch_mvrv.py`. The helper requests only Coin Metrics Community API metric `CapMVRVCur`, validates that the result is a dimensionless positive ratio, exposes the UTC observation time, and fails closed when the latest observation is stale.
+- Validate a normalized snapshot with `python3 scripts/validate_snapshot.py snapshot.json` before assigning an action bias. A blocked or invalid snapshot forbids new exposure; a valid spot-price field may still support a protective reduction.
+- Evaluate the normalized snapshot with `python3 scripts/evaluate_signal.py snapshot.json` after the data gate passes. Treat `add_candidate` as a conditional signal only; it does not specify position size or place an order.
+- Calculate a position only with an explicit risk configuration using `python3 scripts/calculate_position_size.py risk_config.json --signal add_candidate --price <execution-price>`. Without a valid configuration, do not suggest an amount.
+- Validate historical claims with `python3 scripts/backtest_strategy.py data.csv risk_config.json`. The CSV must include `available_at` and a next-bar `execution_at`; reject rows that contain information unavailable at the decision time.
 - Do not scrape an unlabeled number from the Glassnode page as MVRV. In particular, reject currency-formatted values and page fields without an explicit MVRV label and timestamp. Follow the fallback contract in [references/framework.md](references/framework.md).
 
 ## Operating rules
