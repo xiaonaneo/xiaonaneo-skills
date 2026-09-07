@@ -6,7 +6,7 @@
 
 ## Skills
 
-### [投资分析QQQ](qqq-market-analysis/SKILL.md)
+### [TQQQ投资策略](tqqq-investment-strategy/SKILL.md)
 
 以均线、估值和金融压力三因子交叉验证 QQQ/TQQQ，并将证据映射为明确的交易信号。
 
@@ -65,7 +65,7 @@
 │   ├── references/
 │   │   └── framework.md
 │   └── SKILL.md
-├── qqq-market-analysis/
+├── tqqq-investment-strategy/
 │   ├── agents/
 │   │   └── openai.yaml
 │   ├── references/

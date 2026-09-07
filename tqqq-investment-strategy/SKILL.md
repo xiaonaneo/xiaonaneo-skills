@@ -1,9 +1,9 @@
 ---
-name: qqq-market-analysis
+name: tqqq-investment-strategy
 description: Analyze current QQQ/TQQQ conditions with a three-factor cross-validation framework spanning long-term trend, Nasdaq-100 forward valuation and historical percentiles, corporate earnings, and financial stress, then produce explicit buy, hold, wait, add, or staged-sell signals. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ trading strategy; do not use for generic stock commentary without this framework.
 ---
 
-# 投资分析QQQ
+# TQQQ投资策略
 
 把用户的 TQQQ 策略落实为可复核的决策支持。每次分析都重新获取当前数据，不把市场叙事、单一指标或一次历史结论直接当成交易信号。
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "TQQQ投资策略"
+  short_description: "用均线、估值与金融压力交叉验证 QQQ/TQQQ"
+  default_prompt: "使用 $tqqq-investment-strategy 分析当前 QQQ/TQQQ 行情，并给出明确的买入、持有或卖出信号。"
