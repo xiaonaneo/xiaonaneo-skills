@@ -69,6 +69,9 @@
 │   │   └── openai.yaml
 │   ├── references/
 │   │   └── framework.md
+│   ├── scripts/
+│   │   ├── fetch_mvrv.py
+│   │   └── test_fetch_mvrv.py
 │   └── SKILL.md
 ├── tqqq-investment-strategy/
 │   ├── agents/
