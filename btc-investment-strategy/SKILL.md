@@ -1,9 +1,9 @@
 ---
-name: btc-market-analysis
+name: btc-investment-strategy
 description: Analyze current Bitcoin market conditions with a six-layer framework covering macro liquidity, spot and ETF flows, price structure, leverage, on-chain valuation, and cycle position. Use when the user asks for BTC market analysis, trend assessment, bottom or top evaluation, current risk-reward, or whether a BTC move is spot-driven or leverage-driven; do not use for unrelated crypto assets or purely technical execution questions.
 ---
 
-# 投资分析BTC
+# BTC投资策略
 
 Produce an evidence-based BTC state assessment, not a point-price prediction. The analysis must answer:
 
@@ -14,6 +14,11 @@ Produce an evidence-based BTC state assessment, not a point-price prediction. Th
 For every current-market request, browse for fresh data. Use English-language or international sources only; do not use Chinese websites. Prefer primary data and cite each time-sensitive claim close to the claim.
 
 Before analysis, read [references/framework.md](references/framework.md). It defines the six layers, data conventions, synthesis rules, and output contract.
+
+## Deterministic data helpers
+
+- Retrieve current MVRV with `python3 scripts/fetch_mvrv.py`. The helper requests only Coin Metrics Community API metric `CapMVRVCur`, validates that the result is a dimensionless positive ratio, exposes the UTC observation time, and fails closed when the latest observation is stale.
+- Do not scrape an unlabeled number from the Glassnode page as MVRV. In particular, reject currency-formatted values and page fields without an explicit MVRV label and timestamp. Follow the fallback contract in [references/framework.md](references/framework.md).
 
 ## Operating rules
 
@@ -32,6 +37,7 @@ End with a compact dashboard containing:
 
 - Trend: bullish, neutral, or bearish, with horizon.
 - Fragility: low, medium, or high.
+- Financial stress: low, medium, high, or unknown, with easing/stable/worsening direction and implications for the action bias.
 - Risk-reward: favorable, neutral, or unfavorable.
 - Driver: spot-led, leverage-led, mixed, or unclear.
 - Weekly MA band: above weekly MA200, between weekly MA200 and weekly MA300, or below weekly MA300; if the averages are inverted, report the actual relation to both instead of forcing a band.

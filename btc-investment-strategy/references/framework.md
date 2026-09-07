@@ -37,6 +37,20 @@ Interpretation heuristic:
 
 Do not use macro variables to predict an exact BTC price. Identify competing explanations: risk appetite, fiscal expectations, regulation, ETF demand, or crypto-specific deleveraging may dominate temporarily.
 
+#### Financial stress: credit, volatility, and dollar funding
+
+Include financial stress as a fixed subsection within Macro in every report, not as a peer section. Keep it distinct from crypto derivatives fragility: rising yields alone do not establish systemic financial stress.
+
+- Broad conditions: NFCI and, when available, STLFSI4. Compare levels and changes using the same latest data vintage; historical revisions are not new stress.
+- Credit: ICE BofA US High Yield OAS and US Corporate OAS through FRED. Report units consistently (basis points or percent), latest available observations, and change over roughly one week and one month.
+- Volatility: VIX; add Treasury volatility only when a reliable, dated series is available. Distinguish equity fear from credit or funding impairment.
+- Dollar funding: SOFR minus IORB on matching observation dates, with repo or other funding evidence when available. A brief calendar-related spike is not sufficient to call a funding crisis.
+- Prefer Chicago Fed, St. Louis Fed/FRED, New York Fed, Federal Reserve, and Cboe sources. Label missing or delayed data explicitly.
+
+Conclude with Financial stress: low / medium / high (or unknown when evidence is insufficient), plus easing / stable / worsening and the observation window. This is an evidence-based assessment, not a calibrated probability or a vote count. Do not double-count correlated indicators or classify missing readings as low stress.
+
+Explain the action implication: worsening credit and funding conditions weaken the case for adding even when BTC valuation improves; easing stress supports consideration of additions only alongside price, spot demand, and position-risk constraints. State which credit, funding, or volatility evidence would invalidate the assessment.
+
 ### Spot: real-money demand
 
 Question: Is cash demand absorbing supply?
@@ -102,6 +116,22 @@ Prioritize MVRV, realized price, short-term-holder and long-term-holder cost bas
 
 Use valuation to classify zones, not to time exact reversals. On-chain metrics may be revised, provider-specific, delayed, or distorted by lost coins, exchange custody, and ETF-era market structure. RSI or sentiment can supplement this layer but cannot substitute for cost-basis evidence.
 
+#### MVRV retrieval contract
+
+Use the deterministic helper before attempting webpage extraction:
+
+```bash
+python3 scripts/fetch_mvrv.py
+```
+
+The helper uses the no-key Coin Metrics Community API daily metric `CapMVRVCur`, defined as current market capitalization divided by realized capitalization. Treat its latest UTC date as the observation time and retain the provider label because Coin Metrics and Glassnode methodologies can differ.
+
+- Request `CapMVRVCur` by itself. Combining it with metrics that are not available to Community credentials can make the whole request return HTTP 403.
+- Accept only a finite, positive, dimensionless ratio with an ISO timestamp. Never interpret a currency-formatted field, chart price, or unrelated page value as MVRV.
+- The helper marks data older than 72 hours as stale and exits nonzero. Report stale or failed retrieval as a data gap unless a fallback meets the same value, unit, and timestamp requirements.
+- Glassnode is a cross-check or fallback only when its page exposes an explicitly labeled MVRV ratio and observation time. `fuckbtc.com` may supplement a gap only when it exposes a numeric value, visible update time, and usable methodology or upstream source; placeholders such as `--` are not data.
+- Do not splice one provider's current value into another provider's historical thresholds without labeling the methodology change.
+
 ### Cycle: time and regime
 
 Question: Where might BTC sit in its lifecycle, and how weak is that inference?
@@ -156,7 +186,7 @@ State the strongest disconfirming evidence and what observation would force a vi
 Lead with a one-paragraph state assessment and its as-of time. Then use this order:
 
 1. Data basis and freshness.
-2. Macro.
+2. Macro, including a Financial stress subsection covering broad conditions, credit spreads, volatility, and dollar funding.
 3. Spot/ETF.
 4. Price structure and key levels, including current price, weekly MA200, weekly MA300, and the weekly MA band.
 5. Leverage.
@@ -164,7 +194,7 @@ Lead with a one-paragraph state assessment and its as-of time. Then use this ord
 7. Cycle, including the halving date table with 500-days-before and 500-days-after dates.
 8. Hidden assumptions and contrary evidence.
 9. Base, upside, and downside paths, each with observable triggers.
-10. Final dashboard: Trend, Fragility, Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation.
+10. Final dashboard: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation.
 
 Use concise tables when they improve comparison. Cite all current facts and numerical claims. Distinguish:
 
