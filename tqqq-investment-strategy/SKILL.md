@@ -1,11 +1,11 @@
 ---
 name: tqqq-investment-strategy
-description: Analyze current QQQ/TQQQ conditions with a three-factor cross-validation framework spanning long-term trend, Nasdaq-100 forward valuation and historical percentiles, corporate earnings, and financial stress, then produce explicit buy, hold, wait, add, or staged-sell signals. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ trading strategy; do not use for generic stock commentary without this framework.
+description: Apply a three-factor cross-validation framework to TQQQ bear-market entries and bull-market exits, using long-term trend, Nasdaq-100 forward valuation and historical percentiles, corporate earnings, and financial stress to produce explicit buy, hold, wait, add, or staged-sell signals. Use when the user asks to analyze QQQ/TQQQ market conditions or apply their TQQQ investment strategy; do not use for generic stock commentary without this framework.
 ---
 
 # TQQQ投资策略
 
-把用户的 TQQQ 策略落实为可复核的决策支持。每次分析都重新获取当前数据，不把市场叙事、单一指标或一次历史结论直接当成交易信号。
+把用户的 TQQQ 熊市买入—牛市退出系统落实为可复核的决策支持。每次分析都重新获取当前数据，不把市场叙事、单一指标或一次历史结论直接当成交易信号。
 
 ## 三因子交叉验证总纲
 
@@ -201,7 +201,7 @@ TQQQ 投入本金 ≤ min(总资产的 30%, 用户给出的绝对金额上限)
 
 列出会升级或降级信号的可观察条件。
 
-对历史研究或回测，使用 adjusted close，明确周线确认日、下一交易日执行、交易成本、股息、滑点和 TQQQ 上市前的合成数据边界。约 500 天后继续检查卖出交集；700 天或 1000 天若未满足估值与乖离条件，只能报告持有期收益或市值，不得伪装成已实现卖出。
+对历史研究或回测，使用 adjusted close，明确周线确认日、下一交易日执行、交易成本、股息、滑点和 TQQQ 上市前的合成数据边界。若 2000 周期没有 200 个完整的 QQQ 交易周且未明确启用 Nasdaq-100 周 MA200 代理，严格回测结果必须标为 N/A；启用代理时必须单独标注。约 500 天后继续检查卖出交集；700 天或 1000 天若未满足估值与乖离条件，只能报告持有期收益或市值，不得伪装成已实现卖出。
 
 最终可以压缩成：
 
