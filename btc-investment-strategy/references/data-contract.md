@@ -14,7 +14,7 @@ Use this contract unless the user explicitly supplies a different benchmark. A s
 | Dollar index | ICE U.S. Dollar Index (DXY) | Use DXY itself; do not substitute a broad trade-weighted index, another dollar index, or a dollar ETF. |
 | Rates and financial stress | FRED/Federal Reserve, New York Fed, Chicago Fed, and Cboe series specified in the framework | Preserve series ID, unit, observation date, release/availability date, and vintage when relevant. |
 | MVRV | Coin Metrics Community API `CapMVRVCur` | Dimensionless ratio; retain provider, methodology URL, UTC observation time, and retrieval time. |
-| Halving | Bitcoin block height/date from a cited international block-data source | Record actual block height and UTC timestamp for completed halvings; label the next date as projected. |
+| Halving | Bitcoin block height/date from a cited international block-data source | Record actual block height and UTC timestamp for completed halvings; label the next date as projected; derive the 500-day window state with its tolerance. |
 
 ## Required data record
 
@@ -35,6 +35,8 @@ methodology
 ```
 
 `observed_at` is when the market or series refers to the value. `available_at` is when the value could first have been known to the analyst. A backtest must use `available_at`, not merely `observed_at`, to avoid look-ahead bias.
+
+The `halving_timeline` value should include `cycle_state` and, when calculable, `cycle_window`: `pre_halving_500d_window`, `post_halving_500d_window`, `other`, or `unknown`. Use the actual or projected UTC date and preserve whether it is `Actual` or `Estimate`.
 
 ## Freshness and fallback rules
 

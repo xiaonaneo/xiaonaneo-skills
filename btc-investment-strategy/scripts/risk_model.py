@@ -14,6 +14,7 @@ REQUIRED_CONFIG = (
     "max_btc_exposure_pct",
     "cash_reserve_floor_pct",
     "single_trade_cap_pct",
+    "large_trade_cap_pct",
     "risk_budget_pct",
     "invalidation_distance_pct",
     "fee_bps",
@@ -27,6 +28,7 @@ PERCENT_FIELDS = (
     "risk_budget_pct",
     "invalidation_distance_pct",
 )
+ENTRY_SIGNALS = {"add_candidate", "bottom_fishing_candidate", "large_position_candidate"}
 NON_NEGATIVE_FIELDS = ("current_btc_exposure_usdt", "available_cash_usdt", "fee_bps", "slippage_bps")
 
 
@@ -59,6 +61,8 @@ def validate_risk_config(config: dict[str, Any]) -> dict[str, Any]:
             raise RiskConfigError(f"{key} must be in the valid range from zero to one")
     if _number(config, "available_cash_usdt") > portfolio:
         raise RiskConfigError("available_cash_usdt cannot exceed portfolio_value_usdt")
+    if _number(config, "large_trade_cap_pct") < _number(config, "single_trade_cap_pct"):
+        raise RiskConfigError("large_trade_cap_pct cannot be below single_trade_cap_pct")
     cooldown = config.get("cooldown_weeks")
     if isinstance(cooldown, bool) or not isinstance(cooldown, int) or cooldown < 0:
         raise RiskConfigError("cooldown_weeks must be a non-negative integer")
@@ -66,7 +70,7 @@ def validate_risk_config(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def calculate_position_size(config: dict[str, Any], signal: str, execution_price: float) -> dict[str, float | str]:
-    if signal != "add_candidate":
+    if signal not in ENTRY_SIGNALS:
         return {"signal": signal, "trade_notional_usdt": 0.0, "btc_quantity": 0.0}
     validate_risk_config(config)
     if not math.isfinite(execution_price) or execution_price <= 0:
@@ -76,7 +80,8 @@ def calculate_position_size(config: dict[str, Any], signal: str, execution_price
     current = _number(config, "current_btc_exposure_usdt")
     remaining_exposure = max(0.0, portfolio * _number(config, "max_btc_exposure_pct") - current)
     cash_limited = max(0.0, _number(config, "available_cash_usdt") - portfolio * _number(config, "cash_reserve_floor_pct"))
-    single_trade_cap = portfolio * _number(config, "single_trade_cap_pct")
+    cap_key = "large_trade_cap_pct" if signal == "large_position_candidate" else "single_trade_cap_pct"
+    single_trade_cap = portfolio * _number(config, cap_key)
     round_trip_cost = 2 * (_number(config, "fee_bps") + _number(config, "slippage_bps")) / 10000
     effective_loss = _number(config, "invalidation_distance_pct") + round_trip_cost
     risk_limited = portfolio * _number(config, "risk_budget_pct") / effective_loss
@@ -87,6 +92,8 @@ def calculate_position_size(config: dict[str, Any], signal: str, execution_price
         "btc_quantity": round(trade_notional / execution_price, 8),
         "remaining_exposure_usdt": round(remaining_exposure, 8),
         "cash_limited_usdt": round(cash_limited, 8),
+        "trade_cap_type": cap_key,
+        "trade_cap_usdt": round(single_trade_cap, 8),
         "risk_limited_usdt": round(risk_limited, 8),
         "effective_loss_pct": round(effective_loss, 8),
     }

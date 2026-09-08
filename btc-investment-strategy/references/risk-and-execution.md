@@ -14,6 +14,7 @@ Provide these fields in a separate JSON object:
   "max_btc_exposure_pct": 0.30,
   "cash_reserve_floor_pct": 0.20,
   "single_trade_cap_pct": 0.05,
+  "large_trade_cap_pct": 0.15,
   "risk_budget_pct": 0.01,
   "invalidation_distance_pct": 0.10,
   "fee_bps": 10,
@@ -26,20 +27,22 @@ The example is a schema example, not a default allocation. All percentages are d
 
 ## Sizing formula
 
-For an `add_candidate` signal only:
+For an `add_candidate`, `bottom_fishing_candidate`, or `large_position_candidate` signal only:
 
 ```text
 remaining_exposure = max(0, portfolio_value * max_btc_exposure_pct - current_btc_exposure)
 cash_limited = max(0, available_cash_usdt - portfolio_value * cash_reserve_floor_pct)
 single_trade_cap = portfolio_value * single_trade_cap_pct
+large_trade_cap = portfolio_value * large_trade_cap_pct
 round_trip_cost = 2 * (fee_bps + slippage_bps) / 10000
 effective_loss = invalidation_distance_pct + round_trip_cost
 risk_limited = portfolio_value * risk_budget_pct / effective_loss
-trade_notional = min(remaining_exposure, cash_limited, single_trade_cap, risk_limited)
+trade_cap = large_trade_cap for `large_position_candidate`, otherwise single_trade_cap
+trade_notional = min(remaining_exposure, cash_limited, trade_cap, risk_limited)
 BTC quantity = trade_notional / execution price
 ```
 
-The available-cash field is required because total portfolio value may include non-BTC assets, liabilities, or locked funds; total portfolio value alone is not a cash balance.
+The available-cash field is required because total portfolio value may include non-BTC assets, liabilities, or locked funds; total portfolio value alone is not a cash balance. `large_trade_cap_pct` must be at least `single_trade_cap_pct`; it increases only the single-trade ceiling, not the maximum BTC exposure or risk budget.
 
 If `trade_notional` is zero, do not create an order. The calculation is a cap, not a guarantee that an order should be placed. Use `scripts/calculate_position_size.py` to reproduce it.
 

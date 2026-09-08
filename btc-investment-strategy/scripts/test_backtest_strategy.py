@@ -15,6 +15,7 @@ CONFIG = {
     "max_btc_exposure_pct": 0.30,
     "cash_reserve_floor_pct": 0.20,
     "single_trade_cap_pct": 0.05,
+    "large_trade_cap_pct": 0.15,
     "risk_budget_pct": 0.01,
     "invalidation_distance_pct": 0.10,
     "fee_bps": 10,

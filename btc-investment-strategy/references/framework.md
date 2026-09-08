@@ -85,6 +85,8 @@ Calculate weekly MA200 and weekly MA300 as simple moving averages of completed U
 
 This classification assumes weekly MA200 is above weekly MA300. If `weekly MA200 < weekly MA300`, state that the averages are inverted and report price as above or below each average; do not force it into one of the three labels. Keep live/intraday price distinct from moving averages based on the latest completed weekly close.
 
+Also report `price_zone`: `above_ma200`, `bottom_fishing_zone` when price is below MA200 but not below MA300, or `large_position_zone` when price is below MA300. The zone is an entry-context label; it does not by itself override the structural state or authorize a position.
+
 ### Leverage: internal fragility
 
 Question: How much forced buying or selling could amplify the next move?
@@ -145,6 +147,8 @@ Report a halving timeline in `YYYY-MM-DD` using UTC dates. For a current-market 
 
 Calculate and display the dates rather than leaving formulas in the final answer. Also report days before or after the relevant halving as of the analysis timestamp. Label the next halving and both dates derived from it as estimates because block production determines the event date. For historical analysis, use the halving or halvings that bracket the requested period.
 
+Mark a `pre_halving_500d_window` when the analysis date is roughly 470-530 days before a halving, and a `post_halving_500d_window` when it is roughly 470-530 days after a halving. These windows are more likely to contain cycle extremes than ordinary dates, but they do not identify whether the extreme is a bottom or a top. Use Price, Valuation, Spot, Leverage, and Capitulation to determine direction; never increase exposure from the calendar window alone.
+
 The prior framework observed mature-cycle lows clustering roughly 500-540 days before a subsequent halving, with sample observations around 542, 513, and 515 days. Treat this as a hypothesis with a small sample, selection risk, and regime-change risk—not a trading rule. Test it jointly:
 
 `Time x Valuation x Price structure x Capitulation`.
@@ -192,7 +196,7 @@ Every execution must use exactly these six top-level sections and this order:
 5. `## 杠杆水平`
 6. `## 链上估值`
 
-Use `核心结论` for the one-paragraph state assessment and as-of time. Put the compact dashboard there: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create additional top-level sections for these items.
+Use `核心结论` for the one-paragraph state assessment and as-of time. Put the compact dashboard there: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`, Action bias, and Invalidation. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create additional top-level sections for these items.
 
 Map the evidence into the remaining sections:
 

@@ -12,6 +12,7 @@ VALID_CONFIG = {
     "max_btc_exposure_pct": 0.30,
     "cash_reserve_floor_pct": 0.20,
     "single_trade_cap_pct": 0.05,
+    "large_trade_cap_pct": 0.15,
     "risk_budget_pct": 0.01,
     "invalidation_distance_pct": 0.10,
     "fee_bps": 10,
@@ -25,6 +26,16 @@ class RiskModelTests(unittest.TestCase):
         result = calculate_position_size(VALID_CONFIG, "add_candidate", 50000)
         self.assertEqual(result["trade_notional_usdt"], 5000.0)
         self.assertEqual(result["btc_quantity"], 0.1)
+
+    def test_large_position_candidate_uses_the_same_risk_caps(self) -> None:
+        result = calculate_position_size(VALID_CONFIG, "large_position_candidate", 50000)
+        self.assertEqual(result["trade_notional_usdt"], 9615.38461538)
+        self.assertEqual(result["trade_cap_type"], "large_trade_cap_pct")
+
+    def test_large_trade_cap_cannot_be_below_normal_cap(self) -> None:
+        config = dict(VALID_CONFIG, large_trade_cap_pct=0.04)
+        with self.assertRaisesRegex(RiskConfigError, "large_trade_cap_pct"):
+            validate_risk_config(config)
 
     def test_non_add_signal_has_no_position_size(self) -> None:
         result = calculate_position_size({}, "hold_or_wait", 50000)

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from evaluate_signal import evaluate_snapshot
-from risk_model import RiskConfigError, calculate_position_size, validate_risk_config
+from risk_model import ENTRY_SIGNALS, RiskConfigError, calculate_position_size, validate_risk_config
 
 
 REQUIRED_COLUMNS = (
@@ -202,7 +202,7 @@ def run_backtest(rows: Iterable[dict[str, Any]], risk_config: dict[str, Any]) ->
             btc_quantity = 0.0
             trades += 1
             cooldown_until = row["execution_at"] + timedelta(weeks=risk_config["cooldown_weeks"])
-        elif action == "add_candidate" and btc_quantity == 0 and (cooldown_until is None or row["as_of"] >= cooldown_until):
+        elif action in ENTRY_SIGNALS and btc_quantity == 0 and (cooldown_until is None or row["as_of"] >= cooldown_until):
             current_equity = cash
             dynamic_config = dict(risk_config)
             dynamic_config["portfolio_value_usdt"] = current_equity

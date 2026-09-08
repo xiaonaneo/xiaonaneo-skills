@@ -46,4 +46,4 @@ Every execution must use exactly these six top-level sections, in this order, wi
 5. `## 杠杆水平`
 6. `## 链上估值`
 
-Put the as-of timestamp and data basis in `核心结论` or directly in the relevant section. Put the compact dashboard, including Trend, Fragility, Financial stress, Risk-reward, Driver, Weekly MA band, Halving timeline, Action bias, and Invalidation, inside `核心结论`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create separate top-level sections for these items. Avoid unsupported price targets.
+Put the as-of timestamp and data basis in `核心结论` or directly in the relevant section. Put the compact dashboard, including Trend, Fragility, Financial stress, Risk-reward, Driver, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`, Action bias, and Invalidation, inside `核心结论`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create separate top-level sections for these items. Avoid unsupported price targets.

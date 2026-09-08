@@ -93,8 +93,24 @@ class SignalTests(unittest.TestCase):
         values["spot_price"]["value"] = 40000
         values["weekly_ma200"]["value"] = 65000
         values["weekly_ma300"]["value"] = 55000
-        result = evaluate_snapshot(snapshot)
+        result = evaluate_snapshot(snapshot, "invested")
         self.assertEqual(result["action"], "reduce_or_avoid")
+
+    def test_below_ma300_is_a_large_position_candidate_when_other_gates_are_known(self) -> None:
+        snapshot = self.complete()
+        values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
+        values["spot_price"]["value"] = 40000
+        values["weekly_ma200"]["value"] = 65000
+        values["weekly_ma300"]["value"] = 55000
+        values["etf_flow_5d"]["value"] = 100
+        values["etf_flow_20d"]["value"] = 200
+        values["financial_stress"]["value"] = {"level": "low", "direction": "easing"}
+        values["mvrv"]["percentile"] = 20
+        values["oi_7d_change"]["percentile"] = 30
+        snapshot["fields"].append(field("funding_7d", 1, percentile=30))  # type: ignore[union-attr]
+        result = evaluate_snapshot(snapshot, "flat")
+        self.assertEqual(result["factors"]["price_zone"], "large_position_zone")
+        self.assertEqual(result["action"], "large_position_candidate")
 
     def test_data_gap_does_not_become_a_buy_signal(self) -> None:
         snapshot = self.complete()
@@ -111,6 +127,17 @@ class SignalTests(unittest.TestCase):
         values["weekly_ma300"]["value"] = 55000
         result = evaluate_snapshot(snapshot)
         self.assertEqual(result["factors"]["price"], "inverted")
+        self.assertEqual(result["action"], "hold_or_wait")
+
+    def test_halving_window_is_context_not_a_standalone_signal(self) -> None:
+        snapshot = self.complete()
+        values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
+        values["halving_timeline"]["value"] = {
+            "cycle_state": "supportive",
+            "cycle_window": "pre_halving_500d_window",
+        }
+        result = evaluate_snapshot(snapshot)
+        self.assertEqual(result["factors"]["cycle_window"], "pre_halving_500d_window")
         self.assertEqual(result["action"], "hold_or_wait")
 
 
