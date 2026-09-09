@@ -33,7 +33,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 不做简单平均。三个维度只作定性证据交叉验证：均线决定位置，估值决定赔率，金融压力决定环境与行动速度。单因子观察或预警，两因子考虑分批行动，三因子一致才提高力度；硬门槛和数据完整性优先。
 
-实时数据来源与时间口径见 [references/sources-and-metrics.md](references/sources-and-metrics.md)。数据职责固定：Yahoo adjusted close 只做价格/均线，FRED/Cboe 只做金融压力，Nasdaq 官方资料只做盈利，forward P/E 每次只用一个可验证供应商。
+实时数据来源与时间口径见 [references/sources-and-metrics.md](references/sources-and-metrics.md)。执行时读取 [references/scoring-system.md](references/scoring-system.md) 计算买入分、卖出分和行动映射。数据职责固定：Yahoo adjusted close 只做价格/均线，FRED/Cboe 只做金融压力，Nasdaq 官方资料只做盈利，forward P/E 每次只用一个可验证供应商。
 
 ## 买入
 
@@ -62,7 +62,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 按以下顺序执行，不做简单平均：
 
-1. 读取数据来源，确认数据截止日、频率、点时可见性和完整性。
+1. 读取数据来源，确认数据截止日、频率、点时可见性和完整性；需要量化或回测时读取评分参考。
 2. 先判定买入硬门槛、当前交易状态和数据完整性；任何硬性否决优先。
 3. 判定三个因子的状态与有效数量，按一致性和可投入资金确定行动级别。
 4. 按完整周确认和每周最多一次目标差额执行，输出实际行动与未执行原因。
@@ -74,7 +74,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 - 实时和回测默认使用 America/New_York 时区的完整周五收盘信号，在下一美国交易日执行；不使用未完成周线或盘中触及作为确认。执行前读取 [references/sources-and-metrics.md](references/sources-and-metrics.md)。
 - 必须覆盖 QQQ/周 MA200、TQQQ/周 MA300、forward P/E 及历史基准、Nasdaq-100 盈利、金融压力和 QQQ 乖离；标明截止时间、频率、来源、收盘/盘中口径与未知项。
 - 因子状态升级或降级需连续两个完整周确认，每周最多执行一次目标差额；记录目标、成交价、滑点、费用、汇率和未成交原因。硬性否决优先。
-- 回测使用点时可见的价格、forward P/E、EPS 和预期修正，冻结定性规则并按时间划分训练、验证、样本外测试；至少比较 QQQ、TQQQ 买入持有和现金的费用后收益、CAGR、最大回撤、恢复时间、换手率、最差滚动损失和错过上涨幅度。
+- 回测使用点时可见的价格、forward P/E、EPS 和预期修正，冻结定性规则及评分参数（如启用）并按时间划分训练、验证、样本外测试；至少比较 QQQ、TQQQ 买入持有和现金的费用后收益、CAGR、最大回撤、恢复时间、换手率、最差滚动损失和错过上涨幅度。
 - TQQQ 上市前使用明确标注的合成路径 `V_t = V_t-1 × max(0, 1 + 3r_t - cost_t)`，分别记录融资、费用、跟踪误差和滑点；合成结果与真实 TQQQ 分列报告。
 
 ## 固定输出结构
@@ -97,6 +97,6 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 数据：信用、流动性、波动的水平、方向和速度。
 结论：说明金融压力对行动的影响。
 
-**交易决策**
-分析：说明均线、估值和金融压力之间的关系。
-结论：给出观察、不买、慢买、买入、持有或分批卖出等唯一行动状态。
+**交易评分**
+评分：买入 `0.2×均线 + 0.4×估值 + 0.4×压力 = xxx`；卖出 `0.2×乖离 + 0.4×估值 + 0.4×压力 = xxx`。
+结论：**（行动映射）**
