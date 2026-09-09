@@ -25,20 +25,6 @@
 
 适合在分析当前 QQQ/TQQQ 行情、执行个人 TQQQ 策略，或研究历史行情与回测条件时使用。实时分析只使用英文或国际来源，并标注数据时间与口径。
 
-### [BTC投资策略](btc-investment-strategy/SKILL.md)
-
-用宏观流动性、现货资金、价格结构、杠杆、链上估值和周期位置六层框架分析 BTC，判断趋势是否成立、市场是否脆弱，以及当前风险收益是否值得承担。
-
-它会：
-
-- 按 `data-contract.md` 使用 Binance `BTCUSDT`、DXY、ETF、金融压力和 MVRV 数据，并保留时间、来源、单位和状态；
-- 用周 SMA50 区分牛熊，用 MA200/MA300 标记抄底区和大仓位候选区，用减半前后约 500 天标记周期极值窗口；
-- 通过数据闸门和固定状态机输出 `data_gap`、`add_candidate`、`bottom_fishing_candidate`、`large_position_candidate`、`hold_or_wait` 或减仓状态；
-- 将仓位金额、风险预算、现金底线、滑点、失效位和下一根 K 线执行条件集中放在最后的 `交易决策`；
-- 支持带 `available_at` 与下一根 K 线执行时间的现货回测，并与 Buy-and-hold 基准比较。
-
-适合分析当前 BTC 行情、评估周期顶底、判断风险收益，或辨别一轮上涨由现货还是杠杆驱动。实时分析只使用英文或国际来源，并标注数据时间、单位、口径和来源。
-
 ### [ai-native-software-engineering](ai-native-software-engineering/SKILL.md)
 
 把 AI 编程纳入可审查、可验证、可回滚的软件工程闭环。
@@ -64,28 +50,6 @@
 
 ```text
 .
-├── btc-investment-strategy/
-│   ├── agents/
-│   │   └── openai.yaml
-│   ├── references/
-│   │   ├── backtest.md
-│   │   ├── data-contract.md
-│   │   ├── decision-rules.md
-│   │   ├── framework.md
-│   │   └── risk-and-execution.md
-│   ├── scripts/
-│   │   ├── backtest_strategy.py
-│   │   ├── calculate_position_size.py
-│   │   ├── evaluate_signal.py
-│   │   ├── fetch_mvrv.py
-│   │   ├── risk_model.py
-│   │   ├── test_backtest_strategy.py
-│   │   ├── test_evaluate_signal.py
-│   │   ├── test_fetch_mvrv.py
-│   │   ├── test_risk_model.py
-│   │   ├── test_validate_snapshot.py
-│   │   └── validate_snapshot.py
-│   └── SKILL.md
 ├── tqqq-investment-strategy/
 │   ├── agents/
 │   │   └── openai.yaml
