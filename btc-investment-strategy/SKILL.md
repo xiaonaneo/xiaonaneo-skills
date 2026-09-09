@@ -51,14 +51,35 @@ Calculate both empirical percentiles as `100 * count(sample <= latest) / 365`, i
 
 ## Required output format
 
-Every execution must use exactly these seven top-level sections, in this order, with no additional top-level sections:
+Use exactly this compact template and order. Do not add top-level sections or repeat a conclusion in multiple sections:
 
-1. `## 核心结论`
-2. `## 宏观数据`
-3. `## 周期位置`
-4. `## 价格结构`
-5. `## 杠杆水平`
-6. `## 链上估值`
-7. `## 交易决策`
+```markdown
+## 核心结论
+一句话判断：
+状态：趋势 / 脆弱性 / 风险收益
+数据状态：完整 / 有缺口；主要反证：
 
-Put the as-of timestamp and data basis in `核心结论` or directly in the relevant section. Put the compact analytical dashboard, including Trend, Fragility, Financial stress, Risk-reward, Driver, weekly SMA50 regime, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`, inside `核心结论`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Put action state, position context, risk configuration, sizing, invalidation, and execution conditions only in the final `交易决策` section. Do not create other top-level sections. Avoid unsupported price targets.
+## 宏观数据
+DXY、利率、流动性、金融压力、ETF/现货：值、方向、时间、来源
+小结：顺风 / 逆风 / 中性
+
+## 周期位置
+减半时间表：实际/预计日期、前后 500 天日期、当前 cycle_window
+
+## 价格结构
+价格、周 SMA50、周 MA200、周 MA300、sma50_regime、price_zone
+结构：HH/HL 或 LH/LL；关键位：
+
+## 杠杆水平
+OI、Funding、基差、清算；驱动：现货 / 杠杆 / 混合；脆弱性：
+
+## 链上估值
+MVRV、Realized Price、持有人成本、分位数；估值状态：
+
+## 交易决策
+动作：data_gap / hold_or_wait / add_candidate / bottom_fishing_candidate / large_position_candidate / reduce / reduce_or_avoid
+已有仓位：；新资金：；风险配置：已配置 / 未配置
+仓位金额：仅在风险配置有效时给出；失效条件：；执行：下一根可交易 K 线
+```
+
+事实、判断和未知信息分别标注；`交易决策` 是唯一输出行动状态、仓位、失效位和执行条件的部分。缺少关键数据时不得新增仓位，不能给出未经配置支持的金额或价格目标。

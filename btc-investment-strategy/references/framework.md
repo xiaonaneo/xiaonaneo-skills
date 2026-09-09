@@ -14,13 +14,7 @@ Define three horizons before interpreting data:
 
 Build a small data ledger with `metric`, `value`, `as-of`, `unit/basis`, and `source`. A precise number without a timestamp and methodology is not decision-grade evidence.
 
-Source order:
-
-1. Primary and official: Intercontinental Exchange (ICE), Federal Reserve/FRED, U.S. Treasury, SEC, CFTC, CME, ETF issuers, and exchange market data or APIs.
-2. Established international research/data: Coin Metrics, Glassnode, CryptoQuant, Kaiko, K33, Farside Investors, and comparable non-Chinese providers.
-3. International reporting such as Reuters, Bloomberg, or the Financial Times for context and attributed expert claims.
-
-Do not use Chinese websites or Chinese-language sources. A secondary article may help discover a fact, but verify consequential numbers against primary data where practical.
+Use [data-contract.md](data-contract.md) as the sole source, venue, unit, timestamp, and fallback contract. This file explains how to interpret the metrics; it does not redefine their sources.
 
 ## 2. Analyze the six layers
 
@@ -187,19 +181,7 @@ State the strongest disconfirming evidence and what observation would force a vi
 
 ## 5. Output contract
 
-Every execution must use exactly these seven top-level sections and this order:
-
-1. `## 核心结论`
-2. `## 宏观数据`
-3. `## 周期位置`
-4. `## 价格结构`
-5. `## 杠杆水平`
-6. `## 链上估值`
-7. `## 交易决策`
-
-Use `核心结论` for the one-paragraph state assessment and as-of time. Put the compact dashboard there: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, SMA50 regime, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Put the action state, position context, risk configuration, size, invalidation, and execution conditions in the final `交易决策` section only. Do not create additional top-level sections for these items.
-
-Map the evidence into the remaining sections:
+Follow the compact template in `SKILL.md`. Map evidence into the sections as follows:
 
 - `宏观数据`: DXY, yields, Fed stance, liquidity, financial stress, ETF/spot flow, and data freshness relevant to the macro and demand read.
 - `周期位置`: actual and projected halving dates, each relevant `-500 days` and `+500 days` date, days before/after halving, and cycle interpretation.
@@ -208,7 +190,7 @@ Map the evidence into the remaining sections:
 - `链上估值`: MVRV, realized price, holder cost basis, and valuation interpretation.
 - `交易决策`: entry action, existing-position action, position context, risk-config status, position size when configured, invalidation, and next-bar execution condition. `data_gap` means no new exposure.
 
-Use concise tables when they improve comparison. Cite all current facts and numerical claims. Distinguish:
+Use concise tables only when they reduce repetition. Cite current facts and numerical claims. Label each claim as:
 
 - **Observed:** directly supported data.
 - **Inferred:** interpretation derived from multiple observations.
