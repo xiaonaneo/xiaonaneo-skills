@@ -7,6 +7,7 @@ from evaluate_signal import evaluate_snapshot
 
 REQUIRED = [
     "spot_price",
+    "weekly_sma50",
     "weekly_ma200",
     "weekly_ma300",
     "etf_flow_5d",
@@ -47,6 +48,7 @@ class SignalTests(unittest.TestCase):
         snapshot = self.complete()
         values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
         values["spot_price"]["value"] = 70000
+        values["weekly_sma50"]["value"] = 60000
         values["weekly_ma200"]["value"] = 65000
         values["weekly_ma300"]["value"] = 55000
         values["etf_flow_5d"]["value"] = 100
@@ -62,6 +64,7 @@ class SignalTests(unittest.TestCase):
         snapshot = self.complete()
         values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
         values["spot_price"]["value"] = 70000
+        values["weekly_sma50"]["value"] = 60000
         values["weekly_ma200"]["value"] = 65000
         values["weekly_ma300"]["value"] = 55000
         values["etf_flow_5d"]["value"] = 100
@@ -78,6 +81,7 @@ class SignalTests(unittest.TestCase):
         snapshot = self.complete()
         values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
         values["spot_price"]["value"] = 70000
+        values["weekly_sma50"]["value"] = 60000
         values["weekly_ma200"]["value"] = 65000
         values["weekly_ma300"]["value"] = 55000
         values["etf_flow_5d"]["value"] = 100
@@ -91,6 +95,7 @@ class SignalTests(unittest.TestCase):
         snapshot = self.complete()
         values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
         values["spot_price"]["value"] = 40000
+        values["weekly_sma50"]["value"] = 50000
         values["weekly_ma200"]["value"] = 65000
         values["weekly_ma300"]["value"] = 55000
         result = evaluate_snapshot(snapshot, "invested")
@@ -100,6 +105,7 @@ class SignalTests(unittest.TestCase):
         snapshot = self.complete()
         values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
         values["spot_price"]["value"] = 40000
+        values["weekly_sma50"]["value"] = 50000
         values["weekly_ma200"]["value"] = 65000
         values["weekly_ma300"]["value"] = 55000
         values["etf_flow_5d"]["value"] = 100
@@ -123,6 +129,7 @@ class SignalTests(unittest.TestCase):
         snapshot = self.complete()
         values = {item["metric"]: item for item in snapshot["fields"]}  # type: ignore[index]
         values["spot_price"]["value"] = 60000
+        values["weekly_sma50"]["value"] = 55000
         values["weekly_ma200"]["value"] = 50000
         values["weekly_ma300"]["value"] = 55000
         result = evaluate_snapshot(snapshot)

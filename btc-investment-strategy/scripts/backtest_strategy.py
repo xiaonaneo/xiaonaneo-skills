@@ -25,6 +25,7 @@ REQUIRED_COLUMNS = (
     "derivatives_benchmark",
     "data_status",
     "spot_price",
+    "weekly_sma50",
     "weekly_ma200",
     "weekly_ma300",
     "etf_flow_5d",
@@ -43,6 +44,7 @@ REQUIRED_COLUMNS = (
 FLOAT_COLUMNS = (
     "execution_price",
     "spot_price",
+    "weekly_sma50",
     "weekly_ma200",
     "weekly_ma300",
     "etf_flow_5d",
@@ -123,6 +125,7 @@ def row_to_snapshot(row: dict[str, Any]) -> dict[str, Any]:
         "derivatives_benchmark": row["derivatives_benchmark"],
         "fields": [
             field("spot_price", row["spot_price"], status=row["data_status"]),
+            field("weekly_sma50", row["weekly_sma50"], status=row["data_status"]),
             field("weekly_ma200", row["weekly_ma200"], status=row["data_status"]),
             field("weekly_ma300", row["weekly_ma300"], status=row["data_status"]),
             field("etf_flow_5d", row["etf_flow_5d"], status=row["data_status"]),

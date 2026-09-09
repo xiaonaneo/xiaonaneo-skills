@@ -13,6 +13,7 @@ from typing import Any
 
 REQUIRED_METRICS = (
     "spot_price",
+    "weekly_sma50",
     "weekly_ma200",
     "weekly_ma300",
     "etf_flow_5d",

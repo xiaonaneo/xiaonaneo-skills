@@ -22,6 +22,7 @@ def field(metric: str, value: object = 1.0, status: str = "final") -> dict[str, 
 
 REQUIRED = [
     "spot_price",
+    "weekly_sma50",
     "weekly_ma200",
     "weekly_ma300",
     "etf_flow_5d",

@@ -38,6 +38,7 @@ def row(as_of: str, price: float, *, bearish: bool = False, available_at: str | 
         "derivatives_benchmark": "Binance USDⓈ-M BTCUSDT perpetual",
         "data_status": data_status,
         "spot_price": str(price),
+        "weekly_sma50": "105" if bearish else "85",
         "weekly_ma200": "110" if bearish else "90",
         "weekly_ma300": "100" if bearish else "80",
         "etf_flow_5d": "100",

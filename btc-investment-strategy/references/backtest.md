@@ -8,6 +8,7 @@ Use `scripts/backtest_strategy.py` for historical validation. It consumes normal
 observed_at,available_at,as_of,execution_at,execution_price,
 benchmark,derivatives_benchmark,data_status,
 spot_price,weekly_ma200,weekly_ma300,etf_flow_5d,etf_flow_20d,
+weekly_sma50,
 oi_7d_change,oi_7d_percentile,funding_8h,funding_7d_percentile,
 financial_stress_level,financial_stress_direction,mvrv,mvrv_percentile,
 halving_cycle_state,liquidation_cascade

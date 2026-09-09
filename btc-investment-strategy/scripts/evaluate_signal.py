@@ -54,6 +54,7 @@ def cycle_state(fields: dict[str, dict[str, Any]]) -> str:
 
 def factor_states(fields: dict[str, dict[str, Any]]) -> dict[str, Any]:
     price = numeric(fields, "spot_price")
+    sma50 = numeric(fields, "weekly_sma50")
     ma200 = numeric(fields, "weekly_ma200")
     ma300 = numeric(fields, "weekly_ma300")
     if price is None or ma200 is None or ma300 is None:
@@ -76,6 +77,15 @@ def factor_states(fields: dict[str, dict[str, Any]]) -> dict[str, Any]:
         price_state = "neutral"
         ma_band = "between weekly MA200 and weekly MA300"
         price_zone = "bottom_fishing_zone"
+
+    if price is None or sma50 is None:
+        sma50_regime = "unknown"
+    elif price > sma50:
+        sma50_regime = "bullish"
+    elif price < sma50:
+        sma50_regime = "bearish"
+    else:
+        sma50_regime = "neutral"
 
     flow_5d = numeric(fields, "etf_flow_5d")
     flow_20d = numeric(fields, "etf_flow_20d")
@@ -119,6 +129,7 @@ def factor_states(fields: dict[str, dict[str, Any]]) -> dict[str, Any]:
         cycle_window = "unknown"
     return {
         "price": price_state,
+        "sma50_regime": sma50_regime,
         "price_zone": price_zone,
         "weekly_ma_band": ma_band,
         "spot": spot_state,
@@ -161,7 +172,7 @@ def evaluate_snapshot(snapshot: dict[str, Any], position: str = "unknown") -> di
         elif conditions_known and factors["price_zone"] == "bottom_fishing_zone":
             entry_action = "bottom_fishing_candidate"
             matched_rule = "price below weekly MA200 with known non-high valuation, leverage, stress, and non-negative spot"
-        elif conditions_known and factors["price"] == "bullish" and factors["spot"] == "positive":
+        elif conditions_known and factors["price"] == "bullish" and factors["sma50_regime"] == "bullish" and factors["spot"] == "positive":
             entry_action = "add_candidate"
             matched_rule = "bullish price, positive spot, known non-high leverage, stress, and valuation"
         else:

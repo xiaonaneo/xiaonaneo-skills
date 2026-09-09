@@ -7,7 +7,7 @@ Use this contract unless the user explicitly supplies a different benchmark. A s
 | Domain | Canonical source and series | Required basis |
 |---|---|---|
 | Spot price | Binance spot `BTCUSDT` | USDT quote; state live, intraday, or completed-session basis. |
-| Weekly price and MAs | Binance spot `BTCUSDT` 1-week klines | Simple MA200/MA300 of completed UTC weekly closes; exclude the partial week. |
+| Weekly price and MAs | Binance spot `BTCUSDT` 1-week klines | Simple SMA50/MA200/MA300 of completed UTC weekly closes; exclude the partial week. |
 | Perpetual OI | Binance USDⓈ-M `BTCUSDT` perpetual | Report USDT notional and, when available, BTC-denominated OI; include venue and observation time. |
 | Funding | Binance USDⓈ-M `BTCUSDT` perpetual | Report raw 8-hour rate and annualized equivalent separately; do not mix them. |
 | ETF flow | Farside Investors U.S. spot BTC ETF table, cross-checked with issuer data when available | Latest completed U.S. trading session; report preliminary/final status and 5-day/20-day sums. |
@@ -47,4 +47,4 @@ The `halving_timeline` value should include `cycle_state` and, when calculable, 
 - MVRV: use the helper's 72-hour freshness rule and reject future observations.
 - If a critical field is missing, stale, benchmark-mismatched, or lacks an availability time, block new exposure. A hard price risk limit may still permit a protective reduction.
 
-The critical snapshot fields are `spot_price`, `weekly_ma200`, `weekly_ma300`, `etf_flow_5d`, `etf_flow_20d`, `oi_7d_change`, `funding_8h`, `financial_stress`, `mvrv`, and `halving_timeline`. Use `scripts/validate_snapshot.py` to apply this gate consistently. Derived fields such as `oi_7d_change.percentile`, `funding_7d.percentile`, and `mvrv.percentile` are required by the decision state machine for a non-unknown factor state.
+The critical snapshot fields are `spot_price`, `weekly_sma50`, `weekly_ma200`, `weekly_ma300`, `etf_flow_5d`, `etf_flow_20d`, `oi_7d_change`, `funding_8h`, `financial_stress`, `mvrv`, and `halving_timeline`. Use `scripts/validate_snapshot.py` to apply this gate consistently. Derived fields such as `oi_7d_change.percentile`, `funding_7d.percentile`, and `mvrv.percentile` are required by the decision state machine for a non-unknown factor state.

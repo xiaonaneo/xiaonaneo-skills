@@ -73,11 +73,11 @@ Use the canonical Binance spot `BTCUSDT` benchmark unless the user explicitly ov
 - Current price, weekly close, and recent swing highs/lows.
 - Higher high/higher low versus lower high/lower low.
 - Key support, resistance, reclaim, breakdown, and invalidation zones.
-- Weekly 200- and 300-period simple moving averages when the benchmark has adequate history. Report the current BTC price and both moving-average values with their as-of times.
+- Weekly SMA50, MA200, and MA300 when the benchmark has adequate history. Report the current BTC price and all three moving-average values with their as-of times.
 
 Do not confuse daily MA200 with 200-week MA. A wick above resistance is weaker evidence than acceptance above it; define acceptance using closes, retests, or time spent above the level. Price is the final confirmation layer, but rising price alone does not identify the quality of the move.
 
-Calculate weekly MA200 and weekly MA300 as simple moving averages of completed UTC weekly closes from Binance spot `BTCUSDT`. Exclude the partial week by default; if it is included, disclose that choice. Classify the current price as follows when `weekly MA200 >= weekly MA300`:
+Calculate weekly SMA50, MA200, and MA300 as simple moving averages of completed UTC weekly closes from Binance spot `BTCUSDT`. Exclude the partial week by default; if it is included, disclose that choice. Classify the current price as follows when `weekly MA200 >= weekly MA300`:
 
 - `Price > weekly MA200`: **above weekly MA200**.
 - `weekly MA300 <= Price <= weekly MA200`: **between weekly MA200 and weekly MA300**.
@@ -85,7 +85,7 @@ Calculate weekly MA200 and weekly MA300 as simple moving averages of completed U
 
 This classification assumes weekly MA200 is above weekly MA300. If `weekly MA200 < weekly MA300`, state that the averages are inverted and report price as above or below each average; do not force it into one of the three labels. Keep live/intraday price distinct from moving averages based on the latest completed weekly close.
 
-Also report `price_zone`: `above_ma200`, `bottom_fishing_zone` when price is below MA200 but not below MA300, or `large_position_zone` when price is below MA300. The zone is an entry-context label; it does not by itself override the structural state or authorize a position.
+Also report `sma50_regime`: `bullish` when price is above weekly SMA50, `bearish` when below it, and `neutral` when equal or unavailable. Report `price_zone`: `above_ma200`, `bottom_fishing_zone` when price is below MA200 but not below MA300, or `large_position_zone` when price is below MA300. SMA50 is the bull/bear divider for ordinary trend-following adds; the lower MA zones remain contrarian accumulation candidates. Neither label authorizes a position.
 
 ### Leverage: internal fragility
 
@@ -187,7 +187,7 @@ State the strongest disconfirming evidence and what observation would force a vi
 
 ## 5. Output contract
 
-Every execution must use exactly these six top-level sections and this order:
+Every execution must use exactly these seven top-level sections and this order:
 
 1. `## 核心结论`
 2. `## 宏观数据`
@@ -195,16 +195,18 @@ Every execution must use exactly these six top-level sections and this order:
 4. `## 价格结构`
 5. `## 杠杆水平`
 6. `## 链上估值`
+7. `## 交易决策`
 
-Use `核心结论` for the one-paragraph state assessment and as-of time. Put the compact dashboard there: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`, Action bias, and Invalidation. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create additional top-level sections for these items.
+Use `核心结论` for the one-paragraph state assessment and as-of time. Put the compact dashboard there: Trend, Fragility, Financial stress (level and direction), Risk-reward, Driver, SMA50 regime, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Put the action state, position context, risk configuration, size, invalidation, and execution conditions in the final `交易决策` section only. Do not create additional top-level sections for these items.
 
 Map the evidence into the remaining sections:
 
 - `宏观数据`: DXY, yields, Fed stance, liquidity, financial stress, ETF/spot flow, and data freshness relevant to the macro and demand read.
 - `周期位置`: actual and projected halving dates, each relevant `-500 days` and `+500 days` date, days before/after halving, and cycle interpretation.
-- `价格结构`: current price, weekly MA200, weekly MA300, the required weekly MA band, swing structure, and key levels.
+- `价格结构`: current price, weekly SMA50, weekly MA200, weekly MA300, SMA50 regime, the required weekly MA band, swing structure, and key levels.
 - `杠杆水平`: OI, Funding, futures basis, liquidations, and whether the move is spot-led or leverage-led.
 - `链上估值`: MVRV, realized price, holder cost basis, and valuation interpretation.
+- `交易决策`: entry action, existing-position action, position context, risk-config status, position size when configured, invalidation, and next-bar execution condition. `data_gap` means no new exposure.
 
 Use concise tables when they improve comparison. Cite all current facts and numerical claims. Distinguish:
 

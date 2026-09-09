@@ -37,7 +37,7 @@ Before analysis, read [references/framework.md](references/framework.md), [refer
 
 ## Required output format
 
-Every execution must use exactly these six top-level sections, in this order, with no additional top-level sections:
+Every execution must use exactly these seven top-level sections, in this order, with no additional top-level sections:
 
 1. `## 核心结论`
 2. `## 宏观数据`
@@ -45,5 +45,6 @@ Every execution must use exactly these six top-level sections, in this order, wi
 4. `## 价格结构`
 5. `## 杠杆水平`
 6. `## 链上估值`
+7. `## 交易决策`
 
-Put the as-of timestamp and data basis in `核心结论` or directly in the relevant section. Put the compact dashboard, including Trend, Fragility, Financial stress, Risk-reward, Driver, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`, Action bias, and Invalidation, inside `核心结论`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Do not create separate top-level sections for these items. Avoid unsupported price targets.
+Put the as-of timestamp and data basis in `核心结论` or directly in the relevant section. Put the compact analytical dashboard, including Trend, Fragility, Financial stress, Risk-reward, Driver, weekly SMA50 regime, Weekly MA band and `price_zone`, Halving timeline and `cycle_window`, inside `核心结论`. Put hidden assumptions, contrary evidence, and base/upside/downside paths with observable triggers there as well. Put action state, position context, risk configuration, sizing, invalidation, and execution conditions only in the final `交易决策` section. Do not create other top-level sections. Avoid unsupported price targets.
