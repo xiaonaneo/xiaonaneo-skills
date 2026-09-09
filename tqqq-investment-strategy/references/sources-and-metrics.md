@@ -8,7 +8,6 @@
 |---|---|---|
 | QQQ 产品信息与持仓/估值 | [Invesco QQQ](https://www.invesco.com/qqq-etf/en/home.html) | 说明是基金页面披露的 weighted harmonic P/E，还是指数 P/E；不要与 forward P/E 混写 |
 | Nasdaq-100 指数资料 | [Nasdaq Index Research](https://www.nasdaq.com/solutions/global-indexes) | 用于指数方法、历史资料和成分股背景；记录发布日期 |
-| QQQ/TQQQ 官方产品信息 | [ProShares UltraPro QQQ](https://www.proshares.com/our-etfs/leveraged-and-inverse/tqqq) | TQQQ 的目标是单日 3×，不能据此推导长期 3× |
 | VIX | [Cboe VIX](https://www.cboe.com/tradable_products/vix/) | 标注收盘还是盘中；VIX 是隐含波动率，不是金融危机计量器 |
 | 利率与宏观时间序列 | [Federal Reserve FRED](https://fred.stlouisfed.org/) | 记录 series ID、观察日和发布日期；10Y 等利率不能与不同日期的收盘价静默合并 |
 | 金融压力 | [Chicago Fed NFCI](https://www.chicagofed.org/research/data/nfci/current-data)、[St. Louis Fed STLFSI](https://fred.stlouisfed.org/series/STLFSI4) | 记录指数定义、频率、水平、方向和变化速度；注意周频滞后 |
