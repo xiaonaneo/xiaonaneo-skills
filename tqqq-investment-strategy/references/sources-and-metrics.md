@@ -23,7 +23,7 @@
 - 价格：明确 split/dividend 调整方式，趋势比较不得混用 adjusted close 与未调整 close。
 - 数据截止：统一使用 America/New_York；只纳入周五收盘前已发布的数据。日频指标取周五收盘或此前最后观测，周频取最新已发布观测，月频估值使用发布日期可见的 vintage。
 - 历史分位：D 至少需要 260 个完整周观测，forward P/E 至少需要 60 个可比月度 vintage；样本不足只报告当前值，不触发历史分位动作。窗口（扩展或冻结）须在回测前确定。
-- Forward P/E、EPS 和分析师修正必须保存发布日期/时间戳与当时可见版本；无法验证 vintage 时，历史评分和回测仅作非严格研究或 N/A。Trailing/harmonic P/E 不能替代 forward P/E。
+- Forward P/E、EPS 和分析师修正必须保存发布日期/时间戳与当时可见版本；无法验证 vintage 时，历史判定和回测仅作非严格研究或 N/A。Trailing/harmonic P/E 不能替代 forward P/E。
 - 金融压力：按信用、流动性、波动三组统一为“越高越危险”的百分位，组内取中位数，至少两个组可用才计算 `Stress_t`；按同频周序列计算 `ΔStress`、`Δ²Stress`，默认稳定带为 ±5 个百分点，恶化加速为 `ΔStress ≥ 5` 且 `Δ²Stress ≥ 5`。
 
 ## 来源纪律
