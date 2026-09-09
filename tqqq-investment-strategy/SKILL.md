@@ -33,7 +33,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 不做简单平均。三个维度只作定性证据交叉验证：均线决定位置，估值决定赔率，金融压力决定环境与行动速度。单因子观察或预警，两因子考虑分批行动，三因子一致才提高力度；硬门槛和数据完整性优先。
 
-实时数据来源与时间口径见 [references/sources-and-metrics.md](references/sources-and-metrics.md)。
+实时数据来源与时间口径见 [references/sources-and-metrics.md](references/sources-and-metrics.md)。数据职责固定：Yahoo adjusted close 只做价格/均线，FRED/Cboe 只做金融压力，Nasdaq 官方资料只做盈利，forward P/E 每次只用一个可验证供应商。
 
 ## 买入
 
