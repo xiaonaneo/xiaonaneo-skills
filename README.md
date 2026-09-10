@@ -15,7 +15,7 @@
 - 比较 QQQ 周 MA200、TQQQ 周 MA300 及长期乖离；
 - 区分 trailing、forward 和 harmonic P/E，判断估值水平与历史位置；
 - 跟踪信用利差、流动性、波动率、企业盈利水平、盈利预期和综合金融条件；
-- 严格分离数据职责：Yahoo adjusted close 只用于价格和均线，FRED/Cboe 用于金融压力，Nasdaq 官方资料用于盈利，forward P/E 固定使用单一可验证供应商；
+- 严格分离数据职责：Yahoo adjusted close 只用于价格和均线，FRED/Cboe/ICE DXY 用于金融压力，Nasdaq 官方资料用于盈利，forward P/E 默认使用 FactSet 的单一可验证供应商；
 - 按均线、估值和金融压力的定性一致性决定观察、分批行动或提高力度；
 - 按统一买入分/卖出分表计算评分，并在“交易评分”中显示分数及行动映射；
 - 按因子一致性控制仓位，并受硬门槛、总资产 30% 上限和绝对金额上限约束；
@@ -57,6 +57,9 @@
 │   ├── references/
 │   │   ├── scoring-system.md
 │   │   └── sources-and-metrics.md
+│   ├── scripts/
+│   │   ├── scoring_rules.py
+│   │   └── test_scoring_rules.py
 │   └── SKILL.md
 ├── ai-native-software-engineering/
 │   ├── agents/

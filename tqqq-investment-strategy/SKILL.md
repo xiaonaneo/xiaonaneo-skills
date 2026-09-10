@@ -28,12 +28,9 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 - 两个维度相互确认时，才进入“考虑分批操作”；三个维度一致时，才进入“积极操作”或提高力度。这里是证据分层，不是机械计分。
 - 出现冲突时，降低行动强度并明确列出冲突项。
 - 熊市建仓期与已有盈利头寸期必须分开：相同的压力恶化在前者意味着慢买，在后者才可能意味着提前减仓。
+- 实时数据按 [references/sources-and-metrics.md](references/sources-and-metrics.md) 路由；需要量化时按 [references/scoring-system.md](references/scoring-system.md) 计算买入分、卖出分和行动映射。
 
-## 三因子判断
-
-不做简单平均。三个维度只作定性证据交叉验证：均线决定位置，估值决定赔率，金融压力决定环境与行动速度。单因子观察或预警，两因子考虑分批行动，三因子一致才提高力度；硬门槛和数据完整性优先。
-
-实时数据来源与时间口径见 [references/sources-and-metrics.md](references/sources-and-metrics.md)。执行时读取 [references/scoring-system.md](references/scoring-system.md) 计算买入分、卖出分和行动映射。数据职责固定：Yahoo adjusted close 只做价格/均线，FRED/Cboe 只做金融压力，Nasdaq 官方资料只做盈利，forward P/E 每次只用一个可验证供应商。
+不做简单平均。三个维度只作定性证据交叉验证：均线决定位置，估值决定赔率，金融压力决定环境与行动速度。单因子观察或预警，两因子考虑分批行动，三因子一致才提高力度；硬门槛和数据完整性优先。数据职责固定：Yahoo adjusted close 只做价格/均线，FRED/Cboe/ICE DXY 只做金融压力，Nasdaq 官方资料只做盈利，forward P/E 默认使用 FactSet 的单一可验证供应商口径。
 
 ## 买入
 
@@ -41,7 +38,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 估值使用同口径 Nasdaq-100 forward P/E：`>25` 硬性否决，`20–25` 允许但赔率一般，`<20` 为便宜区。至少需要 60 个可比月度 vintage；Forward P/E、历史百分位或压力复合序列必要数据缺失时不新增买入。实际 EPS 与 forward EPS 修正只作为估值验证，不重复计入金融压力。
 
-金融压力按信用、流动性、波动三个组计算周频 `Stress_t`；至少两个组可用才有效。方向与速度使用 `ΔStress`、`Δ²Stress` 的统一阈值，具体口径见数据参考。压力高但改善是危机修复，不等于底部确认；压力恶化时只慢买，改善方向和速度都确认后才可加速。
+金融压力按信用、流动性、波动、宏观四个组计算周频 `Stress_t`；至少两个组可用且至少包含信用或流动性组才有效。宏观组严格包含美国 10 年期国债收益率、ICE DXY、CPI、PCE 和 WTI 油价。方向与速度使用 `ΔStress`、`Δ²Stress` 的统一阈值，具体口径见数据参考。压力高但改善是危机修复，不等于底部确认；压力恶化时只慢买，改善方向和速度都确认后才可加速。
 
 买入速度按因子一致性与可投入资金决定；两因子最多分批部署，三因子且压力稳定/改善才可提高力度。未知数据不得被当作有利证据。
 
@@ -67,7 +64,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 3. 判定三个因子的状态与有效数量，按一致性和可投入资金确定行动级别。
 4. 按完整周确认和每周最多一次目标差额执行，输出实际行动与未执行原因。
 
-可用行动状态包括：观察/不买、允许买入但赔率一般、进入首笔买入区、慢买、加速买、持有、进入永久卖出评估期、观察/准备兑现、提前分批减仓、积极分批卖出、进一步提高卖出力度。
+可用行动状态包括：观察/不买、允许买入但赔率一般、进入首笔买入区、慢买、加速买、持有、观察/准备兑现、提前分批减仓、积极分批卖出、加速卖出。
 
 ## 执行与回测
 
@@ -94,7 +91,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 结论：说明估值对行动的影响。
 
 **金融压力**
-数据：信用、流动性、波动的水平、方向和速度。
+数据：信用、流动性、波动、宏观四组及复合 Stress 的总体水平、方向和速度；宏观组为 10Y 国债收益率、ICE DXY、CPI、PCE、WTI。
 结论：说明金融压力对行动的影响。
 
 **交易评分**
