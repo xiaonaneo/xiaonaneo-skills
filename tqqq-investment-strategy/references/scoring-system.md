@@ -50,7 +50,7 @@
 
 ## 三、估值因子：40%
 
-核心指标使用 [sources-and-metrics.md](sources-and-metrics.md) 指定的 MacroMicro Nasdaq-100 Forward P/E 月度序列；执行前记录 URL、下载时间、口径和月度观测。当前值与至少 60 个连续月度观测必须来自该同一序列；不足时估值分为 N/A，不与 FactSet、Bloomberg、trailing P/E 或其他来源拼接。
+核心指标使用 [sources-and-metrics.md](sources-and-metrics.md) 指定的 Trendonify Nasdaq-100 Forward P/E 月度序列；执行前记录 URL、下载时间、口径和月度观测。当前值与至少 60 个连续月度观测必须来自该同一序列；不足时估值分为 N/A，不与 FactSet、Bloomberg、trailing P/E 或其他来源拼接。
 
 ### 买入赔率分 `V_cheap`
 
@@ -86,9 +86,9 @@
 
 `Stress`、`ΔStress`、`Δ²Stress`
 
-数据按信用、流动性、波动、宏观四个组统一为同频周序列，具体来源和计算口径见 [sources-and-metrics.md](sources-and-metrics.md)。宏观组严格包含美国 10 年期国债名义收益率、ICE DXY、CPI、PCE 和 WTI 油价的水平/加速度；企业盈利修正属于估值验证，不重复并入金融压力分。至少两个组可用且至少包含信用或流动性组，才可形成金融压力分；宏观组 N/A 仅表示该组不参与本周复合值，不使其他已满足条件的压力分失效：
+数据按信用、流动性、波动、宏观四个组统一为同频周序列，具体来源和计算口径见 [sources-and-metrics.md](sources-and-metrics.md)。宏观组严格包含美国 10 年期国债名义收益率、ICE DXY、CPI、PCE 和 `NYMEX:CL1!` 连续近月原油合约的水平/加速度；企业盈利修正属于估值验证，不重复并入金融压力分。至少两个组可用且至少包含信用或流动性组，才可形成金融压力分；宏观组 N/A 仅表示该组不参与本周复合值，不使其他已满足条件的压力分失效：
 
-`G_macro = median(10Y国债收益率分位, DXY分位, CPI分位, PCE分位, WTI油价分位)`；`Stress_t = median(G_credit, G_liquidity, G_volatility, G_macro)`
+`G_macro = median(10Y国债收益率分位, DXY分位, CPI分位, PCE分位, CL1分位)`；`Stress_t = median(G_credit, G_liquidity, G_volatility, G_macro)`
 
 压力水平默认划分为：`Stress≤P50` 低，`P50<Stress≤P75` 中，`P75<Stress≤P90` 高，`Stress>P90` 极高。多个状态同时成立时，买入取更低的 `F_improve`，卖出取更高的 `F_worsening`；状态不清晰时取中性分并降低行动力度。
 

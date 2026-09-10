@@ -39,7 +39,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 估值使用同口径 Nasdaq-100 forward P/E：`>25` 硬性否决，`20–25` 允许但赔率一般，`<20` 为便宜区。使用 [sources-and-metrics.md](references/sources-and-metrics.md) 指定的可导出月度序列，至少需要 60 个连续可比月度观测；Forward P/E、历史百分位或压力复合序列必要数据缺失时不新增买入。实际 EPS 与 forward EPS 修正只作为估值验证，不重复计入金融压力。
 
-金融压力按信用、流动性、波动、宏观四个组计算周频 `Stress_t`；至少两个组可用且至少包含信用或流动性组才有效。宏观组严格包含美国 10 年期国债收益率、ICE DXY、CPI、PCE 和 WTI 油价；宏观组 N/A 时必须披露，但不使已满足有效条件的其他组压力信号失效。方向与速度使用 `ΔStress`、`Δ²Stress` 的统一阈值，具体口径见数据参考。压力高但改善是危机修复，不等于底部确认；压力恶化时只慢买，改善方向和速度都确认后才可加速。
+金融压力按信用、流动性、波动、宏观四个组计算周频 `Stress_t`；至少两个组可用且至少包含信用或流动性组才有效。宏观组严格包含美国 10 年期国债收益率、ICE DXY、CPI、PCE 和 `NYMEX:CL1!` 连续近月原油合约；宏观组 N/A 时必须披露，但不使已满足有效条件的其他组压力信号失效。方向与速度使用 `ΔStress`、`Δ²Stress` 的统一阈值，具体口径见数据参考。压力高但改善是危机修复，不等于底部确认；压力恶化时只慢买，改善方向和速度都确认后才可加速。
 
 买入速度按因子一致性与可投入资金决定；两因子最多分批部署，三因子且压力稳定/改善才可提高力度。未知数据不得被当作有利证据。
 
@@ -93,7 +93,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 结论：说明估值对行动的影响。
 
 **金融压力**
-数据：信用、流动性、波动、宏观四组及复合 Stress 的总体水平、方向和速度；宏观组为 10Y 国债收益率、ICE DXY、CPI、PCE、WTI。
+数据：信用、流动性、波动、宏观四组及复合 Stress 的总体水平、方向和速度；宏观组为 10Y 国债收益率、ICE DXY、CPI、PCE、`NYMEX:CL1!`。
 结论：说明金融压力对行动的影响。
 
 **交易评分**

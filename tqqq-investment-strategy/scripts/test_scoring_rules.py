@@ -107,11 +107,13 @@ class ScoringRulesTest(unittest.TestCase):
 
     def test_sources_cover_forward_pe_history_and_direct_ice_dxy(self):
         sources = (Path(__file__).parents[1] / "references" / "sources-and-metrics.md").read_text(encoding="utf-8")
-        self.assertIn("MacroMicro Nasdaq-100 Forward P/E", sources)
+        self.assertIn("Trendonify Nasdaq-100 Forward P/E", sources)
         self.assertIn("至少 60 个连续月度观测", sources)
         self.assertIn("Yahoo `DX-Y.NYB`", sources)
         self.assertIn("ICE Futures 的 U.S. Dollar Index", sources)
         self.assertIn("美元期货连续合约", sources)
+        self.assertIn("NYMEX:CL1!", sources)
+        self.assertNotIn("WTI", sources)
 
 
 if __name__ == "__main__":

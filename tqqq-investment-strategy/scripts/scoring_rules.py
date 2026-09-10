@@ -167,14 +167,14 @@ def macro_group_score(
     dxy: float,
     cpi: float,
     pce: float,
-    wti: float,
+    cl1: float,
 ) -> float:
     """Return the macro group's median stress percentile.
 
     Inputs are sign-aligned historical percentiles; DXY means ICE DXY,
     not a broad trade-weighted dollar index.
     """
-    return median(_percentile(value) for value in (ten_year_treasury, dxy, cpi, pce, wti))
+    return median(_percentile(value) for value in (ten_year_treasury, dxy, cpi, pce, cl1))
 
 
 def m_hot_score(deviation_percentile: float) -> int:
