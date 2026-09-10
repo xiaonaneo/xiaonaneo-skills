@@ -96,6 +96,23 @@ class ScoringRulesTest(unittest.TestCase):
         self.assertIn("评分：", fixed)
         self.assertIn("结论：**（行动映射）**", fixed)
 
+    def test_missing_score_component_does_not_block_two_factor_sell(self):
+        skill = (Path(__file__).parents[1] / "SKILL.md").read_text(encoding="utf-8")
+        scoring = (Path(__file__).parents[1] / "references" / "scoring-system.md").read_text(encoding="utf-8")
+        self.assertIn("数值总分 N/A 与定性行动不可用是两个不同结论", skill)
+        self.assertIn("D≥P90` 与有效压力恶化加速", skill)
+        self.assertIn("不得以等待估值或宏观组数据为由跳过分批减仓", skill)
+        self.assertIn("宏观组 N/A 仅表示该组不参与本周复合值", scoring)
+        self.assertIn("不得等待估值或宏观组补齐", scoring)
+
+    def test_sources_cover_forward_pe_history_and_direct_ice_dxy(self):
+        sources = (Path(__file__).parents[1] / "references" / "sources-and-metrics.md").read_text(encoding="utf-8")
+        self.assertIn("MacroMicro Nasdaq-100 Forward P/E", sources)
+        self.assertIn("至少 60 个连续月度观测", sources)
+        self.assertIn("Yahoo `DX-Y.NYB`", sources)
+        self.assertIn("ICE Futures 的 U.S. Dollar Index", sources)
+        self.assertIn("美元期货连续合约", sources)
+
 
 if __name__ == "__main__":
     unittest.main()
