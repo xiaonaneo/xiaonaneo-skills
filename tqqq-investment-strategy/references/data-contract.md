@@ -10,23 +10,23 @@
 - 估值比较使用最新已发布的完整月末和三个月前对应月末。月末是周末或假日时，使用该月最后一个交易日；两个日期都必须写出。
 - 每个数据点保存 observation_date、available_at、retrieved_at、source_id、source_version、unit 和 method。available_at 晚于分析截止时间的数据不得使用。
 
-## 价格、WMA 与偏离度
+## 价格、SMA 与偏离度
 
 QQQ 的价格与均线使用同一来源、同一复权口径的周收盘序列。默认使用 adjusted close；若供应商只提供未复权收盘，必须明确标注并保持整段序列一致。TQQQ 当前价格可以单独报告，但不参与底层 Price Gate。
 
-对最近 n 个完整周收盘 C，按最新值权重最高的线性加权移动平均定义：
+对最近 n 个完整周收盘 C，使用简单算术平均定义：
 
 ```
-WeeklyWMA_n(t) = [1×C_(t-n+1) + 2×C_(t-n+2) + ... + n×C_t] / [n×(n+1)/2]
+WeeklySMA_n(t) = [C_(t-n+1) + C_(t-n+2) + ... + C_t] / n
 ```
 
-策略固定使用 WeeklyWMA50 与 WeeklyWMA200。斜率为本周 WMA 减上周 WMA；大于 0 才算上升，小于 0 才算下降，等于 0 不满足任一方向。
+策略固定使用 WeeklySMA50 与 WeeklySMA200。斜率为本周 SMA 减上周 SMA；大于 0 才算上升，小于 0 才算下降，等于 0 不满足任一方向。
 
 价格偏离度：
 
 ```
-D_t = QQQ_Close_t / WeeklyWMA200_t - 1
-PriceGate = QQQ_Close_t <= 1.05 × WeeklyWMA200_t
+D_t = QQQ_Close_t / WeeklySMA200_t - 1
+PriceGate = QQQ_Close_t <= 1.05 × WeeklySMA200_t
 ```
 
 ## P90
@@ -72,4 +72,6 @@ L = 1(NFCI_t > NFCI_(t-13w))
 - RiskCount 2：Deteriorating；
 - RiskCount 3：Severe。
 
-如果有缺失通道，不为缺失值赋 0 或 1。可报告 known_count 和 possible_range=[known_count, known_count+missing_count]；只有整个可能范围落入同一状态时才确定 Risk State，否则为 NA。Risk State 为 NA 时，R_high 不得计为已成立。
+如果有缺失通道，不为缺失值赋 0 或 1。报告 known_count 和 possible_range=[known_count, known_count+missing_count]：若 possible_range 全部落在 0–1，Risk State 可确定为 Stable；若全部落在 2，Risk State 可确定为 Deteriorating；若全部为 3，Risk State 可确定为 Severe；跨越多个状态时才记为 NA。
+
+R_high 采用同样的区间逻辑：known_count≥2 时可确定为真，known_count+missing_count≤1 时可确定为假，其余为 NA。O_high 或 V_high 为 NA 时，不得把它当作假；三项预警中只有至少两项已确认成立时，WATCH 才能确认触发，只有最多一项可能成立时才能确认不触发，其余为 NA。
