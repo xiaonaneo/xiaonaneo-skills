@@ -31,7 +31,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 - 熊市建仓期与已有盈利头寸期必须分开：相同的压力恶化在前者意味着慢买，在后者才可能意味着提前减仓。
 - 实时数据按 [references/sources-and-metrics.md](references/sources-and-metrics.md) 路由；需要量化时按 [references/scoring-system.md](references/scoring-system.md) 计算买入分、卖出分和行动映射。
 
-不做简单平均。三个维度只作定性证据交叉验证：均线决定位置，估值决定赔率，金融压力决定环境与行动速度。单因子观察或预警，两因子考虑分批行动，三因子一致才提高力度；硬门槛和数据完整性优先。数据职责固定：Yahoo adjusted close 只做 QQQ/TQQQ 价格与均线；Yahoo `DX-Y.NYB` 只做其明确标注的 ICE U.S. Dollar Index；FRED/Cboe 只做金融压力；Nasdaq 官方资料只做盈利；forward P/E 使用单一的可导出月度序列。
+不做简单平均。三个维度只作定性证据交叉验证：均线决定位置，估值决定赔率，金融压力决定环境与行动速度。单因子观察或预警，两因子考虑分批行动，三因子一致才提高力度；硬门槛和数据完整性优先。数据职责固定：Yahoo adjusted close 只做 QQQ/TQQQ 价格与均线；Yahoo `DX-Y.NYB` 只做其明确标注的 ICE U.S. Dollar Index；FRED/Cboe 只做金融压力；Nasdaq 官方资料只做盈利；forward P/E 只使用已实际载入并通过版本、连续性和时间可见性检查的单一序列。
 
 ## 买入
 
@@ -39,7 +39,7 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 估值使用同口径 Nasdaq-100 forward P/E：`>25` 硬性否决，`20–25` 允许但赔率一般，`<20` 为便宜区。使用 [sources-and-metrics.md](references/sources-and-metrics.md) 指定的可导出月度序列，至少需要 60 个连续可比月度观测；Forward P/E、历史百分位或压力复合序列必要数据缺失时不新增买入。实际 EPS 与 forward EPS 修正只作为估值验证，不重复计入金融压力。
 
-金融压力按信用、流动性、波动、宏观四个组计算周频 `Stress_t`；至少两个组可用且至少包含信用或流动性组才有效。宏观组严格包含美国 10 年期国债收益率、ICE DXY、CPI、PCE 和 `NYMEX:CL1!` 连续近月原油合约；宏观组 N/A 时必须披露，但不使已满足有效条件的其他组压力信号失效。方向与速度使用 `ΔStress`、`Δ²Stress` 的统一阈值，具体口径见数据参考。压力高但改善是危机修复，不等于底部确认；压力恶化时只慢买，改善方向和速度都确认后才可加速。
+金融压力按信用、流动性、波动、宏观四个组计算周频 `Stress_t`；至少两个组可用且至少包含信用或流动性组才有效。宏观组严格包含美国 10 年期名义国债收益率、ICE DXY、CPI 和 PCE；宏观组 N/A 时必须披露，但不使已满足有效条件的其他组压力信号失效。`Stress_t`、`ΔStress`、`Δ²Stress` 只在连续三周使用完全相同的有效组集合时计算；组集合变化时，压力方向与速度记为 N/A。具体口径见数据参考。压力高但改善是危机修复，不等于底部确认；压力恶化时只慢买，改善方向和速度都确认后才可加速。
 
 买入速度按因子一致性与可投入资金决定；两因子最多分批部署，三因子且压力稳定/改善才可提高力度。未知数据不得被当作有利证据。
 
@@ -64,7 +64,8 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 1. 读取数据来源，确认数据截止日、频率、点时可见性和完整性；需要量化或回测时读取评分参考。
 2. 先判定买入硬门槛、当前交易状态和数据完整性；任何硬性否决优先。
 3. 判定三个因子的状态与有效数量，按一致性和可投入资金确定行动级别。
-4. 按完整周确认和每周最多一次目标差额执行，输出实际行动与未执行原因。
+4. 把评分作为行动强度上限，再应用硬门槛、两因子最低要求和连续两个完整周确认。
+5. 只有用户预先提供可用本金上限、当前目标仓位和每档目标比例时，才计算每周一次的目标差额；缺少任一配置时仅输出行动状态和未执行原因。
 
 可用行动状态包括：观察/不买、允许买入但赔率一般、进入首笔买入区、慢买、加速买、持有、观察/准备兑现、提前分批减仓、积极分批卖出、加速卖出。
 
@@ -72,13 +73,15 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 
 - 实时和回测默认使用 America/New_York 时区的完整周五收盘信号，在下一美国交易日执行；不使用未完成周线或盘中触及作为确认。执行前读取 [references/sources-and-metrics.md](references/sources-and-metrics.md)。
 - 必须覆盖 QQQ/周 MA200、TQQQ/周 MA300、forward P/E 及历史基准、Nasdaq-100 盈利、金融压力和 QQQ 乖离；标明截止时间、频率、来源、收盘/盘中口径与未知项。
-- 因子状态升级或降级需连续两个完整周确认，每周最多执行一次目标差额；记录目标、成交价、滑点、费用、汇率和未成交原因。硬性否决优先。
+- 因子状态升级或降级需连续两个完整周确认。两因子最多允许“正常分批”行动，三因子才可按评分提高力度；买入硬门槛始终优先。每周最多执行一次目标差额，且仅当配置已给出 `Bcap`、当前目标和对应档位比例时记录目标、成交价、滑点、费用、汇率和未成交原因；否则输出不执行。
 - 回测使用点时可见的价格、forward P/E、EPS 和预期修正，冻结定性规则及评分参数（如启用）并按时间划分训练、验证、样本外测试；至少比较 QQQ、TQQQ 买入持有和现金的费用后收益、CAGR、最大回撤、恢复时间、换手率、最差滚动损失和错过上涨幅度。
 - TQQQ 上市前使用明确标注的合成路径 `V_t = V_t-1 × max(0, 1 + 3r_t - cost_t)`，分别记录融资、费用、跟踪误差和滑点；合成结果与真实 TQQQ 分列报告。
 
 ## 固定输出结构
 
 执行输出严格使用以下格式，不使用图表、表格或其他字段：
+
+输出前重新读取 [sources-and-metrics.md](references/sources-and-metrics.md)。不得在结果中写入该文件未列出的估值或原油来源；若版本化 forward P/E 输入没有通过载入校验，必须写明“已授权 NDX `pe-forward` 版本化导出不可用”，不能以旧来源名称解释 N/A。压力方向和速度只有在输出中列出的有效组集合对当前、前一周、前两周完全相同时才能给出。
 
 **核心结论**
 日期：YYYY-MM-DD HH:mm（时区；收盘/盘中）
@@ -89,11 +92,11 @@ description: Apply a three-factor cross-validation framework to TQQQ bear-market
 结论：说明均线位置和买入条件是否满足。
 
 **估值水平**
-数据：Nasdaq-100 forward P/E、历史位置、实际盈利和盈利预期。
+数据：Nasdaq-100 forward P/E、历史位置、实际盈利和盈利预期；注明版本化导出的 `source_id`、`period_end` 与 `available_at`，或注明已授权 NDX `pe-forward` 版本化导出不可用。
 结论：说明估值对行动的影响。
 
 **金融压力**
-数据：信用、流动性、波动、宏观四组及复合 Stress 的总体水平、方向和速度；宏观组为 10Y 国债收益率、ICE DXY、CPI、PCE、`NYMEX:CL1!`。
+数据：信用、流动性、波动、宏观四组及复合 Stress 的总体水平、方向和速度；列出当前、前一周、前两周的有效组集合及其是否一致；宏观组为 10Y 名义国债收益率、ICE DXY、CPI、PCE。
 结论：说明金融压力对行动的影响。
 
 **交易评分**

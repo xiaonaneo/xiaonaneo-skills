@@ -9,6 +9,7 @@
 - 买入评分前必须通过硬门槛：`QQQ / 周MA200 - 1 ≤ 5%` 且 `TQQQ < 周MA300`；Forward P/E `>25` 仍硬性禁止新增买入，不能由评分补偿。
 - 卖出评分只用于已有 TQQQ 持仓的持续评估，不设置额外时间门槛。
 - 单一因子只能观察或预警；两个因子才考虑分批行动；三个因子一致才提高力度。缺失数据记为 N/A，不按剩余权重补算；N/A 因此使对应总分和数值行动映射不可用，但不否定另外两个已有效的定性因子确认。评分区间使用唯一整数分，不使用“0–20”这类无法复核的自由区间。
+- 总分只定义行动强度上限：买入仍须通过硬门槛；任一方向只有连续两个完整周确认且至少两个有效因子时才可执行；两个因子固定为“正常分批”，三因子才读取分数映射。用户未提供 `Bcap`、当前目标仓位和每档目标比例时，动作不得转化为目标差额或金额。
 
 ## 二、均线/乖离因子：20%
 
@@ -50,7 +51,7 @@
 
 ## 三、估值因子：40%
 
-核心指标使用 [sources-and-metrics.md](sources-and-metrics.md) 指定的 Trendonify Nasdaq-100 Forward P/E 月度序列；执行前记录 URL、下载时间、口径和月度观测。当前值与至少 60 个连续月度观测必须来自该同一序列；不足时估值分为 N/A，不与 FactSet、Bloomberg、trailing P/E 或其他来源拼接。
+核心指标使用 [sources-and-metrics.md](sources-and-metrics.md) 指定的 Trendonify Nasdaq-100 Forward P/E 月度序列；执行前实际载入该序列，记录 URL、下载时间、口径和月度观测。当前值与至少 60 个连续月末观测必须来自该同一序列；连续性或载入验证失败时估值分为 N/A，不与其他 P/E 来源拼接。
 
 ### 买入赔率分 `V_cheap`
 
@@ -74,11 +75,11 @@
 | `20 ≤ P/E < 25` | 30 |
 | `25 ≤ P/E < 28` | 52 |
 | `28 ≤ P/E < 30` | 72 |
-| 单月 `P/E ≥ 30` | 40 |
+| 单月 `P/E ≥ 30` | 72 |
 | 连续两个月 `P/E ≥ 30` | 90 |
 | 连续两个月 `P/E ≥ 30` 且盈利恶化 | 100 |
 
-历史百分位分 `V_pct_expensive`：`p≤P25` 为 10，`P25<p≤P50` 为 25，`P50<p≤P75` 为 50，`P75<p≤P90` 为 75，`p>P90` 为 95。最终 `V_expensive = max(V_abs_expensive, V_pct_expensive)`；百分位缺失时卖出估值分为 N/A。单月 `P/E ≥30` 只进入估值预警；连续两个可得月度 vintage 达到 `≥30`，才算持续偏贵。盈利增长强于价格增长时，估值分可取区间下沿。
+历史百分位分 `V_pct_expensive`：`p≤P25` 为 10，`P25<p≤P50` 为 25，`P50<p≤P75` 为 50，`P75<p≤P90` 为 75，`p>P90` 为 95。最终 `V_expensive = max(V_abs_expensive, V_pct_expensive)`；百分位缺失时卖出估值分为 N/A。单月 `P/E ≥30` 只进入估值预警，不能作为卖出因子确认；连续两个可得月度 vintage 达到 `≥30` 或历史百分位 `>P90`，才算估值偏贵。
 
 ## 四、金融压力因子：40%
 
@@ -86,11 +87,13 @@
 
 `Stress`、`ΔStress`、`Δ²Stress`
 
-数据按信用、流动性、波动、宏观四个组统一为同频周序列，具体来源和计算口径见 [sources-and-metrics.md](sources-and-metrics.md)。宏观组严格包含美国 10 年期国债名义收益率、ICE DXY、CPI、PCE 和 `NYMEX:CL1!` 连续近月原油合约的水平/加速度；企业盈利修正属于估值验证，不重复并入金融压力分。至少两个组可用且至少包含信用或流动性组，才可形成金融压力分；宏观组 N/A 仅表示该组不参与本周复合值，不使其他已满足条件的压力分失效：
+数据按信用、流动性、波动、宏观四个组统一为同频周序列，具体来源和计算口径见 [sources-and-metrics.md](sources-and-metrics.md)。宏观组严格包含美国 10 年期名义国债收益率、ICE DXY、CPI 和 PCE 的水平/加速度；企业盈利修正属于估值验证，不重复并入金融压力分。至少两个组可用且至少包含信用或流动性组，才可形成金融压力分；宏观组 N/A 仅表示该组不参与本周复合值，不使其他已满足条件的压力分失效。`Stress_t`、`ΔStress` 和 `Δ²Stress` 的三周比较必须使用完全相同的有效组集合；否则三者均为 N/A：
 
-`G_macro = median(10Y国债收益率分位, DXY分位, CPI分位, PCE分位, CL1分位)`；`Stress_t = median(G_credit, G_liquidity, G_volatility, G_macro)`
+`G_macro = median(10Y名义国债收益率分位, DXY分位, CPI分位, PCE分位)`；`Stress_t = median(G_credit, G_liquidity, G_volatility, G_macro)`
 
 压力水平默认划分为：`Stress≤P50` 低，`P50<Stress≤P75` 中，`P75<Stress≤P90` 高，`Stress>P90` 极高。多个状态同时成立时，买入取更低的 `F_improve`，卖出取更高的 `F_worsening`；状态不清晰时取中性分并降低行动力度。
+
+信用或流动性明显收紧时，无论综合压力方向如何，`F_improve` 最高为 30、`F_worsening` 最低为 78；多项指标持续恶化时，`F_improve` 最高为 40、`F_worsening` 最低为 60。两个条件同时满足时取更严格值。
 
 ### 买入压力改善分 `F_improve`
 
