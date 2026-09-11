@@ -6,27 +6,6 @@
 
 ## Skills
 
-### [TQQQ投资策略](tqqq-investment-strategy/SKILL.md)
-
-以均线、估值和金融压力三因子交叉验证 QQQ/TQQQ，并将证据映射为明确的交易信号。
-
-它会：
-
-- 比较 QQQ 周 MA200、TQQQ 周 MA300 及长期乖离；
-- 区分 trailing、forward 和 harmonic P/E，判断估值水平与历史位置；
-- 跟踪信用利差、流动性、波动率、企业盈利水平、盈利预期和综合金融条件；
-- 严格分离数据职责：Yahoo adjusted close 只用于 QQQ/TQQQ 价格和均线，Yahoo `DX-Y.NYB` 只用于直接 ICE DXY，FRED/Cboe 用于金融压力，Nasdaq 官方资料用于盈利，forward P/E 只使用 Trendonify 的已载入并通过连续性检查的月度序列；
-- 按均线、估值和金融压力的定性一致性决定观察、分批行动或提高力度；
-- 先按 `READY / PARTIAL / STALE / INVALID` 判断三因子资格，再将评分作为行动强度上限；
-- 按统一买入分/卖出分表计算评分，并在“交易评分”中显示分数及行动映射；
-- 按因子一致性控制仓位，并受硬门槛、总资产 30% 上限和绝对金额上限约束；
-- 按“核心结论、均线位置、估值水平、金融压力、交易评分”五大板块输出执行结果；
-- 输出观察、买入、加仓、持有、卖出观察或分批卖出信号；
-- 执行 TQQQ 买入本金不超过总资产 30% 和绝对金额上限的仓位规则；
-- 检查日杠杆的路径依赖、数据口径和策略中的隐藏假设。
-
-适合在分析当前 QQQ/TQQQ 行情、执行个人 TQQQ 策略，或研究历史行情与回测条件时使用。实时分析只使用英文或国际来源，并标注数据时间与口径。
-
 ### [ai-native-software-engineering](ai-native-software-engineering/SKILL.md)
 
 把 AI 编程纳入可审查、可验证、可回滚的软件工程闭环。
@@ -52,16 +31,6 @@
 
 ```text
 .
-├── tqqq-investment-strategy/
-│   ├── agents/
-│   │   └── openai.yaml
-│   ├── references/
-│   │   ├── scoring-system.md
-│   │   └── sources-and-metrics.md
-│   ├── scripts/
-│   │   ├── scoring_rules.py
-│   │   └── test_scoring_rules.py
-│   └── SKILL.md
 ├── ai-native-software-engineering/
 │   ├── agents/
 │   │   └── openai.yaml

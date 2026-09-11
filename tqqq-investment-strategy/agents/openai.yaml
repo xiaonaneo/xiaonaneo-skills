@@ -1,4 +1,0 @@
-interface:
-  display_name: "TQQQ投资策略"
-  short_description: "三因子验证 TQQQ 熊市买入与牛市退出"
-  default_prompt: "使用 $tqqq-investment-strategy 分析当前 QQQ/TQQQ 行情，并给出明确的买入、持有或卖出信号。"
