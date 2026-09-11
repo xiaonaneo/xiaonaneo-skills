@@ -12,13 +12,18 @@ from scoring_rules import (
     macro_group_score,
     m_hot_score,
     m_low_score,
+    readiness_state,
     score_band,
     sell_value_score,
     sell_valuation_confirmed,
     stress_composite,
     stress_factor_scores,
     stress_group_score,
+    stress_extreme_indicator,
+    stress_risk_level,
     stress_trend,
+    extreme_credit_or_liquidity,
+    unified_readiness,
     validate_forward_pe_records,
     weighted_score,
 )
@@ -48,10 +53,11 @@ class ScoringRulesTest(unittest.TestCase):
     def test_position_score(self):
         self.assertEqual(m_low_score(0.05, -0.10), 74)
         self.assertEqual(m_low_score(-0.10, -0.20), 92)
+        self.assertGreaterEqual(m_low_score(0.10, -0.20), m_low_score(0.20, -0.20))
 
     def test_valuation_boundaries(self):
         self.assertEqual(buy_value_score(20, 50), 78)
-        self.assertEqual(buy_value_score(20.01, 50), 52)
+        self.assertEqual(buy_value_score(20.01, 50), 77.95)
         self.assertEqual(sell_value_score(30, 75, 1), 72)
         self.assertEqual(sell_value_score(30, 75, 2), 90)
         self.assertEqual(sell_value_score(30, 75, 2, True), 100)
@@ -62,6 +68,41 @@ class ScoringRulesTest(unittest.TestCase):
         self.assertFalse(sell_valuation_confirmed(30, 75, 1))
         self.assertTrue(sell_valuation_confirmed(30, 75, 2))
         self.assertTrue(sell_valuation_confirmed(25, 91))
+        self.assertGreaterEqual(buy_value_score(20, 50), buy_value_score(25, 50))
+        self.assertGreaterEqual(sell_value_score(30, 50, 1), sell_value_score(25, 50, 1))
+
+    def test_readiness_states(self):
+        now = datetime(2026, 1, 2, tzinfo=timezone.utc)
+        self.assertEqual(
+            readiness_state(records_valid=True, complete=True, freshest_available_at=now, analysis_at=now),
+            "READY",
+        )
+        self.assertEqual(
+            readiness_state(records_valid=True, complete=False, freshest_available_at=now, analysis_at=now),
+            "PARTIAL",
+        )
+        self.assertEqual(
+            readiness_state(records_valid=True, complete=True, freshest_available_at=None, analysis_at=now),
+            "STALE",
+        )
+        self.assertEqual(
+            readiness_state(
+                records_valid=True,
+                complete=True,
+                freshest_available_at=datetime(2026, 1, 3, tzinfo=timezone.utc),
+                analysis_at=now,
+            ),
+            "INVALID",
+        )
+        self.assertEqual(
+            readiness_state(records_valid=False, complete=True, freshest_available_at=now, analysis_at=now),
+            "INVALID",
+        )
+        self.assertEqual(unified_readiness({"position": "READY", "valuation": "READY", "stress": "READY"}), "READY")
+        self.assertEqual(unified_readiness({"position": "READY", "valuation": "PARTIAL", "stress": "READY"}), "PARTIAL")
+        self.assertEqual(unified_readiness({"position": "READY", "valuation": "STALE", "stress": "PARTIAL"}), "STALE")
+        with self.assertRaises(ValueError):
+            unified_readiness({"position": "READY", "valuation": "READY"})
 
     def test_stress_composite_requires_core_group(self):
         self.assertEqual(
@@ -78,6 +119,24 @@ class ScoringRulesTest(unittest.TestCase):
         self.assertEqual(stress_group_score("liquidity", [40, 60, 80]), 60)
         with self.assertRaises(ValueError):
             stress_group_score("credit", [80])
+        self.assertTrue(extreme_credit_or_liquidity({"credit": [80, 90.01]}))
+        self.assertFalse(extreme_credit_or_liquidity({"credit": [80, 90]}))
+        with self.assertRaises(ValueError):
+            extreme_credit_or_liquidity({"volatility": [100]})
+        components = {
+            "credit": {"HY_OAS": 90.01, "IG_OAS": 80},
+            "liquidity": {"NFCI": 89.99, "STLFSI4": 88},
+            "volatility": {"VIX": 99.9},
+        }
+        self.assertEqual(stress_extreme_indicator(components), ("volatility.VIX", 99.9))
+        self.assertEqual(stress_risk_level(components), "EXTREME_ALERT")
+        self.assertEqual(stress_risk_level(components, components), "HIGH_ALERT")
+        self.assertEqual(stress_risk_level({"credit": {"HY_OAS": 90.01}, "liquidity": {"NFCI": 90.01}}), "HIGH_ALERT")
+        self.assertEqual(
+            stress_risk_level({"credit": {"HY_OAS": 90.01}}),
+            "EXTREME_ALERT",
+        )
+        self.assertEqual(stress_risk_level({"credit": {"HY_OAS": 88}}), "NORMAL")
         self.assertEqual(empirical_percentile(3, [1, 2, 3, 4], minimum_observations=4), 75)
         with self.assertRaises(ValueError):
             empirical_percentile(3, [1, 2, 3], minimum_observations=4)
@@ -120,11 +179,13 @@ class ScoringRulesTest(unittest.TestCase):
             macro_group_score(101, 60, 40, 50)
 
     def test_hot_position_boundaries(self):
-        self.assertEqual(m_hot_score(49.99), 10)
+        self.assertEqual(m_hot_score(49.99), 30)
         self.assertEqual(m_hot_score(50), 30)
         self.assertEqual(m_hot_score(75), 55)
         self.assertEqual(m_hot_score(90), 80)
         self.assertEqual(m_hot_score(95), 95)
+        self.assertGreaterEqual(m_hot_score(80), m_hot_score(75))
+        self.assertGreaterEqual(m_hot_score(90), m_hot_score(80))
 
     def test_stress_factor_scores(self):
         self.assertEqual(stress_factor_scores(95, 5, 5), (15, 95))
@@ -146,11 +207,28 @@ class ScoringRulesTest(unittest.TestCase):
         self.assertEqual(executable_action("sell", 1, score=90), "观察/准备兑现")
         self.assertEqual(executable_action("buy", 2, score=90), "正常分批部署")
         self.assertEqual(executable_action("sell", 2, score=90), "正常分批兑现")
+        self.assertEqual(executable_action("buy", 2, score=None, readiness="PARTIAL"), "正常分批部署")
+        self.assertEqual(executable_action("sell", 2, score=None, readiness="STALE"), "正常分批兑现")
         self.assertEqual(executable_action("sell", 3, two_week_confirmed=False, score=90), "观察/准备兑现")
         self.assertEqual(executable_action("sell", 3, score=90), "高强度降低仓位")
+        self.assertEqual(executable_action("buy", 3, score=90, extreme_stress=True), "正常分批部署")
+        self.assertEqual(executable_action("buy", 3, score=90, stress_risk="HIGH_ALERT"), "正常分批部署")
+        self.assertEqual(executable_action("buy", 3, score=90, readiness="PARTIAL"), "正常分批部署")
+        self.assertEqual(
+            executable_action(
+                "buy",
+                3,
+                score=90,
+                readiness={"position": "READY", "valuation": "STALE", "stress": "READY"},
+            ),
+            "正常分批部署",
+        )
 
     def test_weighted_score(self):
-        self.assertEqual(weighted_score(70, 60, 50), 58)
+        ready = {"position": "READY", "valuation": "READY", "stress": "READY"}
+        self.assertEqual(weighted_score(70, 60, 50, readiness=ready), 58)
+        with self.assertRaises(ValueError):
+            weighted_score(70, 60, 50, readiness={"position": "READY", "valuation": "STALE", "stress": "READY"})
 
     def test_default_output_template(self):
         skill = (Path(__file__).parents[1] / "SKILL.md").read_text(encoding="utf-8")
@@ -165,6 +243,8 @@ class ScoringRulesTest(unittest.TestCase):
         self.assertIn("结论：**（行动映射）**", fixed)
         self.assertIn("不得在结果中写入该文件未列出的估值或原油来源", fixed)
         self.assertIn("已授权 NDX `pe-forward` 版本化导出不可用", fixed)
+        self.assertIn("Stress_base", fixed)
+        self.assertIn("最极端原始指标", fixed)
         self.assertTrue(
             "当前、前一周、前两周的有效组集合" in fixed
             or "各板块的“数据：”行只写最终数据" in fixed

@@ -24,8 +24,10 @@
 - 数据截止：统一使用 America/New_York；只纳入周五收盘前已发布的数据。日频指标取周五收盘或此前最后观测，周频取最新已发布观测，月频估值使用发布日期可见的 vintage。
 - 历史分位：D 至少需要 260 个完整周观测；forward P/E 至少需要 60 个连续月末观测，且实时分析和回测分别满足下列可见性要求。样本不足只报告当前值，不触发历史分位动作。窗口（扩展或冻结）须在回测前确定。
 - Forward P/E：每次分析先实际载入 Trendonify Nasdaq-100 Forward P/E 序列，检查页面与下载数据一致、NDX 标识、forward P/E 口径、当前值、60 个连续月末值、无重复月份和非空正值。每行必须保留 `period_end`、`value`、`available_at`、`source_id`、`source_url`、`retrieved_at`。实时分析只可使用 `available_at` 不晚于分析截止时刻的记录；回测还必须使用该历史时刻已保存的版本化导出。任一字段、连续性、载入或时间可见性缺失时，估值为 N/A；不得混用其他来源补点。Nasdaq Global Markets Dashboard 的 NTM P/E 只用于独立口径核验，不写入本策略的百分位或评分。
+- 因子就绪：位置、估值、压力分别输出 `READY`、`PARTIAL`、`STALE` 或 `INVALID`；`READY` 要求数据完整、在截止时间前可见且未超过该指标的新鲜度上限。三因子统一状态按 `INVALID > STALE > PARTIAL > READY` 取最严格值；统一状态不是 `READY` 时不得计算总分。
 - 企业盈利：只使用 Nasdaq 官方资料；EPS、同比增速、forward EPS 和分析师修正分别记录发布日期、覆盖范围和口径，不用 Yahoo、FRED/Cboe 或 S&P 500 数据替代。
-- 金融压力：每个原始指标先以截至该完整周五、实际已发布的数据计算 156 周滚动经验分位，少于 104 周则该指标 N/A；`percentile(x)=100×count(history≤x)/count(history)`。信用组为 HY OAS `BAMLH0A0HYM2` 与 IG OAS `BAMLC0A0CM` 的中位数；流动性组为 NFCI、STLFSI4、`SOFR-IORB` 的中位数；波动组为 Cboe VIX；宏观组为 DGS10、Yahoo `DX-Y.NYB` Close、CPI 同比和 PCE 同比的中位数。所有指标先统一成“越高越危险”。CPI/PCE 使用各自公布时刻才可前向填充。至少两个组可用且至少包含信用或流动性组，才计算 `Stress_t = median(G_credit, G_liquidity, G_volatility, G_macro)`。`Stress_t`、`ΔStress`、`Δ²Stress` 只在当前、前一周和前两周的有效组集合完全相同时计算；`ΔStress=Stress_t-Stress_t-1`，`Δ²Stress=ΔStress_t-ΔStress_t-1`，默认稳定带为 ±5 个百分点，恶化加速为 `ΔStress ≥ 5` 且 `Δ²Stress ≥ 5`。不得使用实际利率、广义贸易加权美元指数、美元期货连续合约或美元 ETF 替代。
+- 金融压力：每个原始指标先以截至该完整周五、实际已发布的数据计算 520 周滚动经验分位，少于 260 周则该指标 N/A；`percentile(x)=100×count(history≤x)/count(history)`。信用组为 HY OAS `BAMLH0A0HYM2` 与 IG OAS `BAMLC0A0CM` 的中位数；流动性组为 NFCI、STLFSI4、`SOFR-IORB` 的中位数；波动组为 Cboe VIX；宏观组为 DGS10、Yahoo `DX-Y.NYB` Close、CPI 同比和 PCE 同比的中位数。所有指标先统一成“越高越危险”。CPI/PCE 使用各自公布时刻才可前向填充。至少两个组可用且至少包含信用或流动性组，才计算 `Stress_t = median(G_credit, G_liquidity, G_volatility, G_macro)`。`Stress_t`、`ΔStress`、`Δ²Stress` 只在当前、前一周和前两周的有效组集合完全相同时计算；`ΔStress=Stress_t-Stress_t-1`，`Δ²Stress=ΔStress_t-ΔStress_t-1`，默认稳定带为 ±5 个百分点，恶化加速为 `ΔStress ≥ 5` 且 `Δ²Stress ≥ 5`。不得使用实际利率、广义贸易加权美元指数、美元期货连续合约或美元 ETF 替代。
+- 极端压力旁路：分别保存 HY OAS、IG OAS、NFCI、STLFSI4 和 `SOFR-IORB` 的历史分位；任一信用或流动性原始指标 `>P90` 时标为 `EXTREME_ALERT`，买入强度上限为“正常分批”；同一指标连续两周 `>P90`，或两个信用/流动性指标同时 `>P90` 时升级为 `HIGH_ALERT`。输出同时报告 `Stress_base`、最极端原始指标及其分位数和风险等级。该旁路不改变数据缺失状态，也不增加卖出确认因子。
 
 ## 来源纪律
 

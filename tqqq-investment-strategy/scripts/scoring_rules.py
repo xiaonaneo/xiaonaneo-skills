@@ -10,6 +10,9 @@ from typing import Iterable, Mapping
 
 
 VALID_STRESS_GROUPS = {"credit", "liquidity", "volatility", "macro"}
+VALID_READINESS_STATES = {"READY", "PARTIAL", "STALE", "INVALID"}
+REQUIRED_FACTORS = {"position", "valuation", "stress"}
+VALID_STRESS_RISK_LEVELS = {"NORMAL", "EXTREME_ALERT", "HIGH_ALERT"}
 REQUIRED_GROUP_COMPONENTS = {
     "credit": 2,
     "liquidity": 3,
@@ -52,7 +55,55 @@ def _whole_months(value: int) -> int:
     return value
 
 
-def empirical_percentile(value: float, history: Iterable[float], *, minimum_observations: int = 104) -> float:
+def _piecewise_linear(value: float, anchors: tuple[tuple[float, float], ...]) -> float:
+    value = _number(value)
+    if value <= anchors[0][0]:
+        return anchors[0][1]
+    for (left_x, left_y), (right_x, right_y) in zip(anchors, anchors[1:]):
+        if value <= right_x:
+            ratio = (value - left_x) / (right_x - left_x)
+            return round(left_y + ratio * (right_y - left_y), 2)
+    return anchors[-1][1]
+
+
+def readiness_state(
+    *,
+    records_valid: bool,
+    complete: bool,
+    freshest_available_at: datetime | None,
+    analysis_at: datetime,
+    max_age_days: int = 45,
+) -> str:
+    """Classify data before it can qualify a score or an action."""
+    if analysis_at.tzinfo is None:
+        raise ValueError("analysis_at must include a timezone")
+    if isinstance(max_age_days, bool) or not isinstance(max_age_days, int) or max_age_days < 0:
+        raise ValueError("max_age_days must be a non-negative integer")
+    if not records_valid:
+        return "INVALID"
+    if not complete:
+        return "PARTIAL"
+    if freshest_available_at is None or freshest_available_at.tzinfo is None:
+        return "STALE"
+    if freshest_available_at > analysis_at:
+        return "INVALID"
+    age_days = (analysis_at - freshest_available_at).total_seconds() / 86400
+    return "READY" if 0 <= age_days <= max_age_days else "STALE"
+
+
+def unified_readiness(factors: Mapping[str, str]) -> str:
+    """Reduce all factor readiness states to one fail-closed state."""
+    if set(factors) != REQUIRED_FACTORS:
+        raise ValueError("readiness must contain position, valuation, and stress")
+    if any(state not in VALID_READINESS_STATES for state in factors.values()):
+        raise ValueError("unknown readiness state")
+    for state in ("INVALID", "STALE", "PARTIAL", "READY"):
+        if state in factors.values():
+            return state
+    raise ValueError("readiness cannot be empty")
+
+
+def empirical_percentile(value: float, history: Iterable[float], *, minimum_observations: int = 260) -> float:
     """Return the inclusive empirical percentile for a frozen history window."""
     if isinstance(minimum_observations, bool) or not isinstance(minimum_observations, int) or minimum_observations < 1:
         raise ValueError("minimum_observations must be a positive integer")
@@ -135,28 +186,12 @@ def score_band(score: float) -> str:
 
 def qqq_position_score(deviation: float) -> int:
     d = _deviation(deviation)
-    if d > 0.20:
-        return 10
-    if d > 0.10:
-        return 30
-    if d > 0.05:
-        return 50
-    if d > 0:
-        return 70
-    if d > -0.10:
-        return 90
-    return 100
+    return round(_piecewise_linear(d, ((-0.10, 100), (0, 90), (0.05, 70), (0.10, 50), (0.20, 30), (0.30, 10))))
 
 
 def tqqq_position_score(deviation: float) -> int:
     t = _deviation(deviation)
-    if t >= 0:
-        return 0
-    if t > -0.10:
-        return 60
-    if t >= -0.20:
-        return 80
-    return 100
+    return round(_piecewise_linear(t, ((-0.30, 100), (-0.20, 80), (-0.10, 80), (0, 0))))
 
 
 def m_low_score(qqq_deviation: float, tqqq_deviation: float) -> float:
@@ -170,27 +205,8 @@ def buy_gate(qqq_deviation: float, tqqq_deviation: float, forward_pe: float) -> 
 def buy_value_score(forward_pe: float, pe_percentile: float) -> float:
     pe = _positive(forward_pe)
     percentile = _percentile(pe_percentile)
-    if pe > 30:
-        absolute = 5
-    elif pe > 25:
-        absolute = 20
-    elif pe > 20:
-        absolute = 52
-    elif pe >= 18:
-        absolute = 78
-    else:
-        absolute = 92
-
-    if percentile <= 25:
-        historical = 95
-    elif percentile <= 50:
-        historical = 80
-    elif percentile <= 75:
-        historical = 60
-    elif percentile <= 90:
-        historical = 30
-    else:
-        historical = 10
+    absolute = _piecewise_linear(pe, ((18, 92), (20, 78), (25, 52), (30, 5)))
+    historical = _piecewise_linear(percentile, ((25, 95), (50, 80), (75, 60), (90, 30), (100, 10)))
     return min(absolute, historical)
 
 
@@ -203,31 +219,12 @@ def sell_value_score(
     pe = _positive(forward_pe)
     percentile = _percentile(pe_percentile)
     sustained_months = _whole_months(sustained_months)
-    if pe < 20:
-        absolute = 10
-    elif pe < 25:
-        absolute = 30
-    elif pe < 28:
-        absolute = 52
-    elif pe < 30:
-        absolute = 72
-    elif sustained_months >= 2 and earnings_deteriorating:
+    absolute = _piecewise_linear(pe, ((20, 10), (25, 30), (28, 52), (30, 72)))
+    if sustained_months >= 2 and earnings_deteriorating and pe >= 30:
         absolute = 100
-    elif sustained_months >= 2:
+    elif sustained_months >= 2 and pe >= 30:
         absolute = 90
-    else:
-        absolute = 72
-
-    if percentile <= 25:
-        historical = 10
-    elif percentile <= 50:
-        historical = 25
-    elif percentile <= 75:
-        historical = 50
-    elif percentile <= 90:
-        historical = 75
-    else:
-        historical = 95
+    historical = _piecewise_linear(percentile, ((25, 10), (50, 25), (75, 50), (90, 75), (100, 95)))
     return max(absolute, historical)
 
 
@@ -248,6 +245,66 @@ def stress_group_score(name: str, component_percentiles: Iterable[float]) -> flo
     if len(values) != expected:
         raise ValueError(f"{name} requires exactly {expected} component values")
     return median(values)
+
+
+def extreme_credit_or_liquidity(
+    components: Mapping[str, Iterable[float]],
+    *,
+    threshold: float = 90,
+) -> bool:
+    """Return whether any credit/liquidity component reaches the P90 bypass."""
+    threshold = _percentile(threshold)
+    if not set(components) <= {"credit", "liquidity"}:
+        raise ValueError("only credit and liquidity components are accepted")
+    return any(
+        _percentile(value) > threshold
+        for values in components.values()
+        for value in values
+    )
+
+
+def stress_extreme_indicator(
+    components: Mapping[str, Mapping[str, float]],
+) -> tuple[str, float] | None:
+    """Return the most extreme available raw indicator and its percentile."""
+    if not set(components) <= VALID_STRESS_GROUPS:
+        raise ValueError("unknown stress group")
+    values = [
+        (f"{group}.{name}", _percentile(value))
+        for group, indicators in components.items()
+        for name, value in indicators.items()
+    ]
+    return max(values, key=lambda item: item[1]) if values else None
+
+
+def stress_risk_level(
+    current_components: Mapping[str, Mapping[str, float]],
+    previous_components: Mapping[str, Mapping[str, float]] | None = None,
+    *,
+    threshold: float = 90,
+) -> str:
+    """Classify the P90 tail risk independently of median Stress_base."""
+    threshold = _percentile(threshold)
+
+    def tail_keys(components: Mapping[str, Mapping[str, float]]) -> set[str]:
+        if not set(components) <= VALID_STRESS_GROUPS:
+            raise ValueError("unknown stress group")
+        return {
+            f"{group}.{name}"
+            for group, indicators in components.items()
+            if group in {"credit", "liquidity"}
+            for name, value in indicators.items()
+            if _percentile(value) > threshold
+        }
+
+    current_tail = tail_keys(current_components)
+    if len(current_tail) >= 2:
+        return "HIGH_ALERT"
+    if previous_components is not None and current_tail & tail_keys(previous_components):
+        return "HIGH_ALERT"
+    if current_tail:
+        return "EXTREME_ALERT"
+    return "NORMAL"
 
 
 def _normalized_stress_groups(groups: Mapping[str, float]) -> dict[str, float]:
@@ -298,17 +355,9 @@ def macro_group_score(
     return stress_group_score("macro", (ten_year_treasury, dxy, cpi, pce))
 
 
-def m_hot_score(deviation_percentile: float) -> int:
+def m_hot_score(deviation_percentile: float) -> float:
     percentile = _percentile(deviation_percentile)
-    if percentile < 50:
-        return 10
-    if percentile < 75:
-        return 30
-    if percentile < 90:
-        return 55
-    if percentile < 95:
-        return 80
-    return 95
+    return round(_piecewise_linear(percentile, ((0, 10), (50, 30), (75, 55), (90, 80), (95, 95))), 2)
 
 
 def stress_factor_scores(
@@ -359,7 +408,15 @@ def stress_factor_scores(
     return improve, worsen
 
 
-def weighted_score(position: float, valuation: float, financial_stress: float) -> float:
+def weighted_score(
+    position: float,
+    valuation: float,
+    financial_stress: float,
+    *,
+    readiness: Mapping[str, str],
+) -> float:
+    if unified_readiness(readiness) != "READY":
+        raise ValueError("all factors must be READY before numeric scoring")
     values = [_number(position), _number(valuation), _number(financial_stress)]
     if any(value < 0 or value > 100 for value in values):
         raise ValueError("component scores must be between 0 and 100")
@@ -396,10 +453,19 @@ def executable_action(
     hard_gate_passed: bool = True,
     two_week_confirmed: bool = True,
     score: float | None = None,
+    readiness: str | Mapping[str, str] = "READY",
+    extreme_stress: bool = False,
+    stress_risk: str = "NORMAL",
 ) -> str:
     """Return the action allowed by gates, confirmation count, and score."""
     if side not in {"buy", "sell"}:
         raise ValueError("side must be 'buy' or 'sell'")
+    if isinstance(readiness, Mapping):
+        readiness = unified_readiness(readiness)
+    if readiness not in VALID_READINESS_STATES:
+        raise ValueError("readiness must be READY, PARTIAL, STALE, or INVALID")
+    if stress_risk not in VALID_STRESS_RISK_LEVELS:
+        raise ValueError("stress_risk must be NORMAL, EXTREME_ALERT, or HIGH_ALERT")
     if isinstance(confirmed_factors, bool) or not isinstance(confirmed_factors, int) or not 0 <= confirmed_factors <= 3:
         raise ValueError("confirmed_factors must be an integer from 0 to 3")
     if side == "buy" and not hard_gate_passed:
@@ -408,6 +474,12 @@ def executable_action(
         return "观察/不买" if side == "buy" else "观察/准备兑现"
     if confirmed_factors == 2:
         return "正常分批部署" if side == "buy" else "正常分批兑现"
+    if readiness != "READY":
+        # A non-READY factor removes numeric scoring, but must not erase
+        # qualitative confirmation already supplied by the caller.
+        return "正常分批部署" if side == "buy" else "正常分批兑现"
+    if side == "buy" and (extreme_stress or stress_risk in {"EXTREME_ALERT", "HIGH_ALERT"}):
+        return "正常分批部署"
     if score is None:
         return "观察/不买" if side == "buy" else "观察/准备兑现"
     return action_for_score(score, side)
