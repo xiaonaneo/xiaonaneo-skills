@@ -1,119 +1,91 @@
 ---
 name: tqqq-investment-strategy
-description: "只分析当前 TQQQ/QQQ 的市场结构、均线、估值、盈利预期和金融风险，不输出交易或仓位建议。"
+description: "只分析当前 TQQQ/QQQ 的均线位置、估值水平和金融压力，不输出交易或仓位建议。"
 ---
 
 # TQQQ投资策略
 
 ## 范围
 
-本 Skill 只输出 QQQ/TQQQ 市场分析：价格、周线均线、P90、Forward PE、NDX NTM blended Forward EPS、C/L/E 风险、水平诊断和市场状态。不得输出买入、卖出、持有、加仓、减仓、建仓、清仓、仓位、目标资金或成交建议。
+本 Skill 只分析 QQQ/TQQQ 的市场状态，固定覆盖三部分：
 
-用户提供的新策略文件、数据口径和明确修改优先于本 Skill。交易规则只作为背景，不能转换为交易动作。
+1. 均线位置：QQQ 距离周 SMA200 的水平及历史百分位、是否低于周 SMA200、相对周 SMA50 的位置及周 SMA50 斜率。
+2. 估值水平：QQQ 的估值代理及其历史百分位。
+3. 金融压力：HY OAS、NFCI、VIX 的当前水平、历史百分位、变化方向和变化速度。
 
-## 分析纪律
+不得输出买入、卖出、持有、加仓、减仓、建仓、清仓、仓位、目标资金、成交或交易决策。不得恢复旧版的 E、C/L/E 投票、P90 顶部预警、结构性失败或交易状态机。
 
-- 当前数据必须重新核验，并标明 Asia/Shanghai 分析时间、美国最新收盘日、收盘/盘中口径和最近完整周线日期。
-- 周线指标只使用最近一个完整交易周的收盘；当前周未结束时，盘中值只能作为背景。
-- QQQ 是底层结构的主要对象；TQQQ 只报告价格表现和产品波动。
-- 价格、SMA、D 和 P90 使用同一来源、同一复权口径和同一周边界。
+用户提供的新数据口径或明确修改优先于本 Skill。详细口径见 [references/data-contract.md](references/data-contract.md)，可选的市场快照字段见 [references/state-schema.md](references/state-schema.md)。
+
+## 数据纪律
+
+- 当前数据必须重新核验，并标明北京时间分析时间、美国市场最新收盘日、收盘/盘中状态和最近一个完整周线日期。
+- 周线指标只使用最近一个完整交易周的收盘；未完成周的价格只能作为背景，不得用于周 SMA、历史百分位或趋势结论。
+- QQQ 是均线与估值分析的主要对象；TQQQ 只可补充当前价格和波动表现，不替代 QQQ。
+- 同一指标的当前值、历史序列和百分位必须保持来源、单位、复权口径和观察频率一致。
 - 每个数据点记录 observation_date、available_at、retrieved_at、source_id、source_version、unit 和 method。
+- 无法验证的数据标为 NA；不得用其他指标、其他日期或主观估计填补。缺失一个指标时，只报告其他可验证指标。
 
-详细计算口径见 [references/data-contract.md](references/data-contract.md)，市场状态字段见 [references/state-schema.md](references/state-schema.md)。
+## 指标定义
 
-## 核心指标
+### 均线位置
 
-### 均线与位置
+QQQ 周 SMA50 和周 SMA200 使用完整周收盘的简单算术平均。价格距离周 SMA200 为百分比偏离，周 SMA50 斜率为本周与上周的差值。
 
-WeeklySMA50 和 WeeklySMA200 是完整周收盘的简单算术平均：
+历史百分位将当前“距离周 SMA200”与此前所有有效完整周的同口径偏离度比较，使用 nearest-rank；至少需要 260 个此前有效周。样本不足时百分位为 NA，但仍报告当前距离、是否低于周 SMA200 以及周 SMA50 位置和斜率。
 
-```text
-WeeklySMA_n(t) = [C_(t-n+1) + ... + C_t] / n
-D_t = QQQ_Close_t / WeeklySMA200_t - 1
-PriceCondition = QQQ_Close_t <= 1.05 × WeeklySMA200_t
-```
+均线位置必须明确报告：
 
-均线斜率是本周 SMA 减上周 SMA；大于 0 为上升，小于 0 为下降，等于 0 为平坦。
+- QQQ 是否低于周 SMA200；
+- QQQ 在周 SMA50 之上、之下或相等；
+- 周 SMA50 斜率向上、向下或持平。
 
-P90 是排除当前完整周的扩展历史 D 样本 nearest-rank 90 分位，至少需要 260 个此前有效周。样本不足时 O_high=NA，不影响其他风险标记。
+### 估值水平
 
-```text
-O_high = D >= P90
-V_high = Forward PE >= 30
-R_high = Risk State >= Deteriorating
-```
+使用 Nasdaq-100 Forward PE 作为 QQQ 的估值代理，报告当前值及其历史百分位。当前值和历史序列必须采用同一 Forward PE 定义、来源、观察频率和日期规则；历史样本不足或口径无法匹配时，历史百分位为 NA。NTM blended Forward EPS 不是本 Skill 的必需输入，不因其缺失阻断估值水平分析。
 
-O/V/R 使用 TRUE、FALSE、NA 三值逻辑。至少两项确认 TRUE 时，TopRiskCandidate=TRUE；最多一项可能为 TRUE 时为 FALSE；其余为 NA。
+### 金融压力
 
-### C/L/E 风险
+分别报告 HY OAS、NFCI、VIX，不合并成 C/L/E 或其他投票。三者统一为每周最后一个可用观测，并分别提供：当前值、历史百分位、13 周变化方向、近 4 周平均周变化。
 
-```text
-C = 1(HY_OAS_t > HY_OAS_t-13w)
-L = 1(NFCI_t > NFCI_t-13w)
-E = 1(Implied_NDX_NTM_Forward_EPS_t < Implied_NDX_NTM_Forward_EPS_t-3m)
-```
+- HY OAS 上升表示信用压力加大，下降表示缓解。
+- NFCI 上升表示金融条件收紧，下降表示放松。
+- VIX 上升表示隐含波动压力加大，下降表示缓解。
 
-只有 C/L/E 方向值进入 RiskCount：0–1 为 Stable，2 为 Deteriorating，3 为 Severe。缺失值不填补；报告 known_count 和 possible_range，只有可能范围落在同一状态时才确定 Risk State。
-
-E 优先使用直接 NDX NTM blended Forward EPS；不可得时，使用同一观察日期的 NDX ÷ Forward PE 反推。记录 e_method、e_confidence、e_date_match、source_id 和 source_version。
-
-### 水平诊断
-
-HY OAS、NFCI 和 ANFCI 记录当前值、单位、历史分位和 sample_n；VIX、DXY、Funding Stress 和美国 10Y 只作背景。水平诊断不计入 RiskCount，不增加投票，不单独改变市场状态。
-
-### 趋势状态
-
-仅把以下条件作为市场趋势标记：
-
-- TrendRecovery：QQQ Close>WeeklySMA50 且 WeeklySMA50_t>WeeklySMA50_t-1。
-- TD1：QQQ Close<WeeklySMA50 且 WeeklySMA50_t<WeeklySMA50_t-1。
-- TD2：TD1 且 QQQ Close<WeeklySMA200。
-- TD3：QQQ Close<WeeklySMA200 且 WeeklySMA200_t<WeeklySMA200_t-1。
-
-趋势标记描述中期和长期趋势，不转换成交易指令。
+三个指标的历史百分位均按“数值越高、压力越大”解释。方向和速度使用各指标自身的同口径序列；缺失某个窗口时，该指标对应字段为 NA，不影响另外两个指标。
 
 ## 市场状态
 
-market_state 按以下顺序描述当前市场，所有原始 flags 仍须同时输出：
+市场状态只是对当前市场的描述，不代表账户状态或行动指令。判断优先级固定为 `DATA_INSUFFICIENT` > `LONG_TERM_WEAK` > `MID_TERM_WEAK` > `MID_TERM_STRONG` > `MIXED`；原始指标始终单独保留：
 
-```text
-DATA_INSUFFICIENT  核心数据不足
-STRUCTURE_FAILURE  结构性检查失败
-LONG_TREND_DAMAGE  TD3 成立
-MID_TREND_DAMAGE   TD1 或 TD2 成立
-TOP_RISK_CANDIDATE O/V/R 至少两项成立
-STRUCTURE_STABLE   以上条件均未成立且结构正常
-UNKNOWN            没有历史状态或无法初始化
-```
+- `DATA_INSUFFICIENT`：核心周线或估值数据不足以完成判断；
+- `LONG_TERM_WEAK`：QQQ 低于周 SMA200；
+- `MID_TERM_WEAK`：QQQ 低于周 SMA50，且周 SMA50 斜率向下；
+- `MID_TERM_STRONG`：QQQ 高于周 SMA50，且周 SMA50 斜率向上；
+- `MIXED`：以上条件未同时成立，或不同周期信号不一致。
 
-状态优先级只用于生成一个 market_state，不覆盖原始风险和趋势 flags。
+判断时保留所有原始数据，不用单一市场状态覆盖均线、估值或金融压力的具体结果。
 
-## 状态记录
+## 输出格式
 
-状态记录只保存市场状态、风险/趋势 flags、水平诊断、数据质量和 provenance。同一完整周重复分析必须幂等，不重复生成事件。只有用户明确要求持续保存且提供路径时才写入状态。
-
-状态字段见 [references/state-schema.md](references/state-schema.md)。
-
-## 固定输出
-
-面向用户的所有可见标题、叙述、数据标签和结论都使用简体中文。股票代码、公式和必要的机器字段可以保留原样。严格使用以下五个标题，顺序不可变；只显示精简数据和结论，不列公式、计算过程、数据抓取流程、来源优先级、状态更新流程或字段解释。
+面向用户的所有可见内容使用简体中文。只显示精简数据和结论，不列公式、计算过程、抓取流程、来源优先级或内部字段解释。严格使用以下五个标题，顺序不可变；不增加交易决策标题。
 
 **核心结论**
 日期：YYYY-MM-DD HH:mm（Asia/Shanghai；美国收盘/盘中）
-结论：用中文一句话概括市场状态。
+结论：一句话概括均线、估值和金融压力。
 
 **均线位置**
-数据：QQQ、TQQQ、最近完整周线、50周简单均线、200周简单均线、偏离度、90分位和趋势标记。
-结论：用中文一句话说明均线位置。
+数据：QQQ 价格、最近完整周线、距周 SMA200、历史百分位、是否低于周 SMA200、周 SMA50 上下位置及斜率。
+结论：一句话说明长期和中期均线位置。
 
 **估值水平**
-数据：Nasdaq-100 预期市盈率、估值区间、未来十二个月混合预期每股收益状态和数据可信度。
-结论：用中文一句话说明估值状态。
+数据：Nasdaq-100 Forward PE、观察日、历史百分位。
+结论：一句话说明当前估值处于历史高位、中位、低位或无法判断。
 
 **金融风险**
-数据：信用风险（C）、流动性风险（L）、盈利风险（E）、风险计数或可能范围、风险状态、HY OAS/NFCI 水平诊断。
-结论：用中文一句话说明金融风险状态。
+数据：HY OAS、NFCI、VIX 的当前值、历史百分位、13 周方向、近 4 周平均变化。
+结论：一句话说明金融压力整体是在加大、缓解、混合还是无法判断。
 
 **市场状态**
-数据：结构检查、顶部风险候选、中期趋势恢复、一级/二级/三级趋势破坏和市场状态。
-结论：用中文一句话说明已确认状态和关键数据缺口。
+数据：市场状态和关键数据缺口。
+结论：一句话说明当前市场结构特征，不给出交易动作。

@@ -1,47 +1,44 @@
-# TQQQ 市场状态 schema
+# TQQQ 市场分析快照 schema
 
-状态记录只保存市场分析结果，不保存交易目标、仓位或成交信息。没有用户明确的持续保存要求时，只输出结果，不写入文件。
+状态记录只保存市场分析快照，不保存交易目标、仓位、成交、买卖迁移或账户状态。
+
+没有用户明确的持续保存要求时，只输出结果，不创建或覆盖状态文件。用户授权保存时，使用明确指定的路径，并保留已有记录。
+
+## 最小字段
 
 ```json
 {
   "analysis_version": "2026.09",
-  "market_state": "UNKNOWN",
-  "structural_check": "UNKNOWN",
-  "top_risk_candidate": null,
-  "risk_state": "UNKNOWN",
-  "risk_flags": {
-    "c": null,
-    "l": null,
-    "e": null,
-    "o_high": null,
-    "v_high": null,
-    "r_high": null
+  "as_of": "YYYY-MM-DDTHH:mm:ss+08:00",
+  "market_state": "MIXED",
+  "last_complete_week": "YYYY-MM-DD",
+  "ma_position": {
+    "qqq_close": null,
+    "sma50": null,
+    "sma200": null,
+    "distance_sma200": null,
+    "distance_percentile": null,
+    "below_sma200": null,
+    "sma50_relation": null,
+    "sma50_slope": null
   },
-  "trend_flags": {
-    "trend_recovery": null,
-    "td1": null,
-    "td2": null,
-    "td3": null
+  "valuation": {
+    "forward_pe": null,
+    "historical_percentile": null,
+    "observation_date": null
   },
-  "level_diagnostics": {},
-  "earnings_quality": {},
-  "last_complete_week": null,
-  "last_evaluation_at": null,
-  "data_quality": {
-    "missing_fields": [],
-    "known_count": null,
-    "possible_range": null
+  "financial_pressure": {
+    "hy_oas": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null},
+    "nfci": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null},
+    "vix": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null}
   },
-  "provenance": {
-    "price": [],
-    "valuation": [],
-    "risk": []
-  }
+  "data_quality": {"missing_fields": []},
+  "provenance": {"price": [], "valuation": [], "risk": []}
 }
 ```
 
-market_state 只能是 UNKNOWN、STRUCTURE_STABLE、TOP_RISK_CANDIDATE、MID_TREND_DAMAGE、LONG_TREND_DAMAGE、STRUCTURE_FAILURE 或 DATA_INSUFFICIENT。所有 flags 可为 TRUE、FALSE 或 NA。
+允许的 `market_state` 为 `DATA_INSUFFICIENT`、`LONG_TERM_WEAK`、`MID_TERM_WEAK`、`MID_TERM_STRONG` 和 `MIXED`。均线关系、斜率、百分位、方向和速度缺失时使用 `null`，不得写成 FALSE、0 或中性。
 
-市场状态优先级为 DATA_INSUFFICIENT > STRUCTURE_FAILURE > LONG_TREND_DAMAGE > MID_TREND_DAMAGE > TOP_RISK_CANDIDATE > STRUCTURE_STABLE；原始 flags 必须同时保留。
+`direction_13w` 只能是 `worsening`、`easing`、`flat` 或 `unknown`；`speed_4w` 保存数值，正数表示压力加大，负数表示压力缓解，零表示无变化。每个指标的单位必须在 provenance 中记录。
 
-每次分析读取上一条市场状态，使用最新可见的完整周线更新。同一完整周已处理过时保持幂等，不重复生成事件。事件 reason 只能描述市场结构、顶部风险、趋势恢复、趋势破坏或数据不足。
+同一完整周重复分析应保持幂等：不得因重复运行生成重复事件。快照更新只替换已明确授权的目标文件，不覆盖无法确认归属的文件。

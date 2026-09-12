@@ -1,47 +1,37 @@
-# TQQQ 市场数据契约
+# TQQQ 市场分析数据契约
 
-## 时间
+本文件只定义均线位置、估值水平和金融压力的可复核数据口径，不定义买卖规则或账户状态。
 
-- 市场数据按 America/New_York 对齐；输出同时标明 Asia/Shanghai 分析时间。
-- 完整周线取交易周最后一个交易日收盘；当前周未结束时不计算周线状态。
-- 估值使用最新可用完整月末和三个月前对应月末；周末/假日使用最后一个交易日。
+## 时间与完整性
+
+- 市场数据按 America/New_York 对齐，用户输出同时标明 Asia/Shanghai 分析时间。
+- 完整周线取交易周最后一个交易日收盘。当前周未结束时，不使用当前周计算周线均线、偏离度或历史百分位。
+- 估值使用最新可用的完整观测；当前值和历史序列的来源、定义、频率与日期规则必须一致。
 - 每条数据记录 observation_date、available_at、retrieved_at、source_id、source_version、unit 和 method。
 
-## 价格与均线
+## 均线位置
 
-QQQ 使用同一来源、同一复权口径的周收盘序列，计算简单算术平均：
+QQQ 使用同一来源、同一复权口径的完整周收盘序列，计算周 SMA50、周 SMA200、价格距离周 SMA200，以及周 SMA50 的周环比斜率。
 
-```
-WeeklySMA_n(t) = [C_(t-n+1) + ... + C_t] / n
-D_t = QQQ_Close_t / WeeklySMA200_t - 1
-PriceCondition = QQQ_Close_t <= 1.05 × WeeklySMA200_t
-```
+距离周 SMA200 的历史百分位使用此前所有有效完整周偏离度的 nearest-rank 百分位，排除当前观测，至少需要 260 个历史周。样本不足时只将百分位标为 NA，不替换为其他窗口或其他均线。
 
-P90 使用排除当前完整周的扩展历史 D 样本 nearest-rank 90 分位，位置为 ceil(0.90×N)，至少需要 260 个此前有效周；不足时 O_high=NA。
+必须分别保留以下字段：`below_sma200`、`sma50_relation`、`sma50_slope`。它们是独立描述，不合并为单一信号。
 
-## 估值与 E
+## 估值水平
 
-Forward PE 必须是 Nasdaq-100 同口径数据，一次分析固定一个来源和版本。直接 NDX NTM blended Forward EPS 优先；不可得时，使用同一来源、同一观察日期规则的 NDX ÷ Forward PE 反推。
+使用 Nasdaq-100 Forward PE 作为 QQQ 估值代理。当前值、历史百分位和历史样本必须来自同一 Forward PE 定义及同一来源；历史样本不足或日期无法匹配时，百分位为 NA。
 
-```
-ImpliedEPS_t = NDX_Close_t / ForwardPE_t
-E = 1(ImpliedEPS_t < ImpliedEPS_(t-3m))
-```
+NTM blended Forward EPS 不属于本 Skill 的必需字段。不能因为 NTM blended Forward EPS 缺失而虚构估值百分位，也不能用不同日期的 EPS、PE 或指数值拼接成一个估值数据点。
 
-当前期与比较期必须匹配指数版本、Forward PE 定义和观察日期。记录 e_method、e_confidence、e_date_match、source_id、source_version 和 available_at。
+## 金融压力
 
-## C/L/E
+HY OAS、NFCI、VIX 分别使用每周最后一个可用观测。每个指标单独保存当前值、历史百分位、13 周变化和近 4 周平均周变化：
 
-```
-C = 1(HY_OAS_t > HY_OAS_(t-13w))
-L = 1(NFCI_t > NFCI_(t-13w))
-E = 1(ImpliedEPS_t < ImpliedEPS_(t-3m))
+```text
+13周变化 = 当前值 - 13周前值
+近4周平均周变化 = (当前值 - 4周前值) / 4
 ```
 
-只有 C/L/E 的方向值进入 RiskCount：0–1=Stable，2=Deteriorating，3=Severe。缺失通道不填补，报告 known_count 和 possible_range；可能范围跨越状态时 Risk State=NA。
+对三者统一采用“数值上升=压力加大、数值下降=压力缓解”的解释。历史百分位也按数值越高表示压力越大解释。窗口或历史序列不足时，对应字段为 NA；不以 0、正常或中性替代缺失值。
 
-R_high：known_count≥2 为 TRUE，known_count+missing_count≤1 为 FALSE，其余为 NA。O_high 或 V_high 为 NA 时不当作 FALSE。至少两项 TRUE 才确认 TopRiskCandidate；最多一项可能 TRUE 才确认不成立。
-
-## 水平诊断
-
-HY OAS、NFCI、ANFCI 记录值、单位、历史分位和 sample_n；VIX、DXY、Funding Stress 和美国 10Y 只作背景。水平诊断不计入 RiskCount，不单独改变市场状态。
+本 Skill 不把 HY OAS、NFCI、VIX 合并成投票、风险计数或单一阈值。整体金融压力只能根据三个指标的已知方向和速度作文字概括，并保留混合或无法判断。
