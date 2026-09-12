@@ -25,17 +25,17 @@
 
 ### [tqqq-investment-strategy](tqqq-investment-strategy/SKILL.md)
 
-按 `TQQQ 完整交易策略 v2026.09` 冻结版分析 QQQ/TQQQ 行情，覆盖均线位置、Forward PE、NDX NTM blended Forward EPS、C/L/E 金融风险投票和状态机决策。
+按 `TQQQ 完整交易策略 v2026.09` 冻结版分析 QQQ/TQQQ 市场状态，覆盖均线位置、Forward PE、NDX NTM blended Forward EPS、C/L/E 金融风险投票和趋势标记。
 
 它会：
 
-- 使用 QQQ 的 WeeklySMA50/200、PriceGate 和扩展历史 P90 判断位置；
+- 使用 QQQ 的 WeeklySMA50/200、PriceCondition 和扩展历史 P90 判断位置；
 - 通过直接数据或同日期 NDX ÷ Forward PE 反推验证 E 通道，并保留数据 provenance；
-- 按 `WAIT → ACCUMULATE → HOLD → WATCH → REALIZE1 → REALIZE2 → DE-RISK` 管理状态；
-- 区分策略目标仓位与实际成交仓位，处理 HOLD 不自动加仓和 REALIZE 后重新进入 WAIT；
+- 按 UNKNOWN、STRUCTURE_STABLE、TOP_RISK_CANDIDATE、MID_TREND_DAMAGE、LONG_TREND_DAMAGE 和 STRUCTURE_FAILURE 标记市场状态；
+- 只保存市场状态、数据质量和 provenance，不输出交易决策或仓位建议；
 - 严格区分完整周线、未完成周线、数据缺失和三值风险投票。
 
-适合需要按固定规则分析当前 TQQQ 行情和已有仓位的场景；不自动下单，也不适用于普通个股评论。
+适合需要按固定规则分析当前 TQQQ 行情和市场阶段的场景；不输出交易决策，也不适用于普通个股评论。
 
 ## 使用方式
 
@@ -55,7 +55,6 @@
 │   ├── references/
 │   │   ├── data-contract.md
 │   │   └── state-schema.md
-│   ├── README.md
 │   └── SKILL.md
 ├── LICENSE
 └── README.md

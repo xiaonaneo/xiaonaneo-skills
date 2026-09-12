@@ -1,4 +1,4 @@
 interface:
   display_name: "TQQQ投资策略"
-  short_description: "按冻结规则计算 TQQQ 的买入、持有、预警与分级兑现信号"
-  default_prompt: "使用 $tqqq-investment-strategy 分析当前 TQQQ 行情，并按五个固定部分给出状态和交易决策。"
+  short_description: "只分析 TQQQ 市场结构、均线、估值与金融风险状态"
+  default_prompt: "使用 $tqqq-investment-strategy 分析当前 TQQQ 市场状态，只输出市场分析。"
