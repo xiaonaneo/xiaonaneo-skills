@@ -28,9 +28,9 @@
     "observation_date": null
   },
   "financial_pressure": {
-    "hy_oas": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null},
-    "nfci": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null},
-    "vix": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null}
+    "hy_oas": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null, "speed_change": null},
+    "nfci": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null, "speed_change": null},
+    "vix": {"value": null, "percentile": null, "direction_13w": null, "speed_4w": null, "speed_change": null}
   },
   "data_quality": {"missing_fields": []},
   "provenance": {"price": [], "valuation": [], "risk": []}
@@ -39,6 +39,6 @@
 
 允许的 `market_state` 为 `DATA_INSUFFICIENT`、`LONG_TERM_WEAK`、`MID_TERM_WEAK`、`MID_TERM_STRONG` 和 `MIXED`。均线关系、斜率、百分位、方向和速度缺失时使用 `null`，不得写成 FALSE、0 或中性。
 
-`direction_13w` 只能是 `worsening`、`easing`、`flat` 或 `unknown`；`speed_4w` 保存数值，正数表示压力加大，负数表示压力缓解，零表示无变化。每个指标的单位必须在 provenance 中记录。
+`direction_13w` 只能是 `worsening`、`easing`、`flat` 或 `unknown`。`speed_4w` 保存近四周平均每周变化，`speed_change` 保存该速度相对前一四周窗口的变化；两者均使用对应指标原始单位。每个指标的单位必须在 provenance 中记录。
 
 同一完整周重复分析应保持幂等：不得因重复运行生成重复事件。快照更新只替换已明确授权的目标文件，不覆盖无法确认归属的文件。
