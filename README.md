@@ -10,6 +10,10 @@
 
 把 AI 编程纳入可审查、可验证、可回滚的软件工程闭环。
 
+### [qqq-market-analysis](qqq-market-analysis/SKILL.md)
+
+按趋势、估值与盈利、金融风险传播和状态迁移分析当前 QQQ 市场；输入 `gg` 时使用。
+
 ## 使用方式
 
 选择需要的 skill，阅读对应目录中的 `SKILL.md`，再将该目录放入 Codex 的 skills 目录中使用。不同运行环境的 skills 目录位置可能不同，请以本机 Codex 配置为准。
@@ -19,6 +23,10 @@
 ```text
 .
 ├── ai-native-software-engineering/
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── SKILL.md
+├── qqq-market-analysis/
 │   ├── agents/
 │   │   └── openai.yaml
 │   └── SKILL.md

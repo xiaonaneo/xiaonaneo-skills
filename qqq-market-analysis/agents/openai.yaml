@@ -1,0 +1,4 @@
+interface:
+  display_name: "QQQ市场分析"
+  short_description: "按趋势、估值与盈利、金融风险传播识别QQQ市场状态"
+  default_prompt: "Use $qqq-market-analysis to analyze the current QQQ market state."
